@@ -381,6 +381,7 @@
     color:#C0392B; font-size:13.5px; font-weight:600; margin-bottom:10px; display:none;
   }
   .input-error.show{ display:block; }
+  .input-error.notice{ color: var(--pill-text); }
   .input-spinner{
     display:none; align-items:center; gap:8px; font-size:13.5px; color: var(--ink-soft);
     margin-right:auto;
@@ -789,8 +790,8 @@
     dotIndicator.classList.toggle('off', !dotActive);
   });
 
-  // ---- Conteúdo do sermão por Modo de Exibição ----
-  const SERMON_CONTENT = {
+  // ---- Conteúdo do sermão por Modo de Exibição (Sermão de Exemplo) ----
+  const EXAMPLE_CONTENT = {
 
     // 1) MODO EXEGÉTICO — cards, chips gregos, exposição do texto, contexto histórico
     exegetico: `
@@ -1055,8 +1056,56 @@
     `
   };
 
+  // Sumário estático do Sermão de Exemplo (usado pelo drawer/TOC)
+  const EXAMPLE_TOC = [
+    { id: 'nav-abertura', num: 'A', plain: true, label: 'Abertura', sub: 'Contexto de Lucas 17:20-37' },
+    { id: 'nav-div1', num: '1', plain: false, label: 'Orai Sempre e Nunca Desanimeis', sub: 'v. 1' },
+    { id: 'nav-div2', num: '2', plain: false, label: 'O Juiz Sem Deus e a Viúva Sem Ninguém', sub: 'vv. 2-5' },
+    { id: 'nav-div3', num: '3', plain: false, label: 'Do Juiz Injusto ao Pai que Ama Seus Escolhidos', sub: 'vv. 6-8a' },
+    { id: 'nav-div4', num: '4', plain: false, label: 'A Pergunta Que Fica', sub: 'v. 8b' },
+    { id: 'nav-conclusao', num: 'C', plain: true, label: 'Conclusão' },
+    { id: 'nav-final', num: 'P', plain: true, label: 'Palavra Final' }
+  ];
+
+  // ---- Estado: Sermão de Exemplo vs. Meu Sermão ----
+  let activeSermon = 'exemplo';   // 'exemplo' | 'custom'
+  let customContent = null;       // {exegetico, leitura, pulpito, toc, titulo, citacao, lexEntries}
+  let customRaw = '';             // último texto colado, para reabrir o modal em modo de edição
+
+  const ORIGINAL_TITLE_HTML = document.getElementById('mainTitle').innerHTML;
+  const ORIGINAL_CITATION_TEXT = document.getElementById('mainCitation').textContent;
+
+  function esc(s){
+    if(s === null || s === undefined) return '';
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function getContent(mode){
+    return (activeSermon === 'custom' && customContent) ? customContent[mode] : EXAMPLE_CONTENT[mode];
+  }
+  function getToc(){
+    return (activeSermon === 'custom' && customContent) ? customContent.toc : EXAMPLE_TOC;
+  }
+  function updateTitleDisplay(){
+    const titleEl = document.getElementById('mainTitle');
+    const citeEl = document.getElementById('mainCitation');
+    if(activeSermon === 'custom' && customContent){
+      titleEl.innerHTML = customContent.titulo || 'Meu Sermão';
+      citeEl.textContent = customContent.citacao || '';
+    } else {
+      titleEl.innerHTML = ORIGINAL_TITLE_HTML;
+      citeEl.textContent = ORIGINAL_CITATION_TEXT;
+    }
+  }
+  function enableCustomSourceButton(){
+    document.getElementById('customSourceBtn').disabled = false;
+  }
+
   function renderSermon(mode){
-    document.getElementById('sermonBody').innerHTML = SERMON_CONTENT[mode];
+    document.getElementById('sermonBody').innerHTML =
+      getContent(mode) || '<p class="body-text">Nenhum conteúdo disponível para este modo.</p>';
     attachLexChips();
   }
 
@@ -1084,6 +1133,21 @@
   });
 
   renderSermon('exegetico');
+
+  // ---- Alternância: Sermão de Exemplo ↔ Meu Sermão ----
+  const sourceButtons = document.querySelectorAll('#sourceSwitch button');
+  sourceButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const src = btn.getAttribute('data-source');
+      if(src === 'custom' && !customContent) return; // ainda não há sermão personalizado
+      activeSermon = src;
+      sourceButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateTitleDisplay();
+      renderSermon(document.body.getAttribute('data-mode') || 'exegetico');
+      saveActiveSourcePref(src);
+    });
+  });
 
 
   // ---- Menu (drawer) — reaproveita o mesmo painel de navegação ----
@@ -1199,6 +1263,327 @@
   document.getElementById('sairBtn').addEventListener('click', () => {
     window.scrollTo({top:0, behavior:'smooth'});
   });
+
+  // =========================================================
+  // "+ Inserir Sermão" — processamento do texto colado nas
+  // 3 estruturas (Exegético, Leitura, Púlpito) + persistência
+  // =========================================================
+
+  // Constrói {exegetico, leitura, pulpito, toc, titulo, citacao, lexEntries}
+  // a partir do JSON compacto retornado pela API.
+  function buildContentFromData(data){
+    const divisoesRaw = Array.isArray(data.divisoes) ? data.divisoes.slice(0, 4) : [];
+    const lexEntries = {};
+
+    const divisoes = divisoesRaw.map((d, i) => {
+      let chipHtml = '';
+      const termo = d.termo_grego;
+      if(termo && termo.strong){
+        const code = termo.strong;
+        lexEntries[code] = {
+          greek: termo.palavra || '',
+          translit: termo.translit || '',
+          classe: termo.classe || '',
+          def: termo.definicao || '',
+          note: termo.nota || ''
+        };
+        chipHtml = ` <button class="lex-chip" data-code="${esc(code)}">📖 ${esc(termo.translit || termo.palavra || '')} <span class="lex-code">${esc(code)}</span></button>`;
+      }
+      return { ...d, chipHtml, tituloSafe: d.titulo || ('Divisão ' + (i + 1)) };
+    });
+
+    const exegetico = `
+      <div class="prop-box">
+        <div class="prop-eyebrow">✨ Proposição Central / Tema do Sermão</div>
+        <div class="prop-text">"${esc(data.proposicao)}"</div>
+      </div>
+      ${data.citacao_biblica_curta ? `<p class="body-text scripture">${esc(data.citacao_biblica_curta)}</p>` : ''}
+      <div class="division-card" id="nav-abertura">
+        <div class="division-head"><div class="division-num alt">A</div><h2 class="division-title">Abertura</h2></div>
+        <hr class="card-rule">
+        <p class="body-text">${esc(data.abertura)}</p>
+      </div>
+      <div class="section-header" id="nav-desenvolvimento"><span class="flame">🔥</span><span class="label">Desenvolvimento Homilético</span></div>
+      <hr class="section-rule">
+      ${divisoes.map((d, i) => `
+        <div class="division-card" id="nav-div${i + 1}">
+          <div class="division-head"><div class="division-num">${i + 1}</div><h2 class="division-title">${esc(d.tituloSafe)}${d.versiculos ? ' (' + esc(d.versiculos) + ')' : ''}</h2></div>
+          <hr class="card-rule">
+          <div class="exposicao-label">Exposição do Texto:</div>
+          <p class="body-text">${esc(d.exposicao)}${d.chipHtml}</p>
+        </div>
+      `).join('')}
+      <div class="division-card" id="nav-conclusao">
+        <div class="division-head"><div class="division-num alt">C</div><h2 class="division-title">Conclusão</h2></div>
+        <hr class="card-rule">
+        <p class="body-text">${esc(data.conclusao && data.conclusao.texto)}</p>
+      </div>
+      <div class="division-card" id="nav-final">
+        <div class="division-head"><div class="division-num alt">P</div><h2 class="division-title">Palavra Final</h2></div>
+        <hr class="card-rule">
+        <p class="closing-q">${esc(data.apelo_final)}</p>
+      </div>
+    `;
+
+    const leitura = `
+      <p class="essay-open">${esc(data.proposicao)}</p>
+      <div class="essay-block" id="nav-abertura"><p class="body-text">${esc(data.abertura)}</p></div>
+      <div class="essay-divider">· · ·</div>
+      ${divisoes.map((d, i) => `<div class="essay-block" id="nav-div${i + 1}"><p class="body-text">${esc(d.leitura)}</p></div>${i < divisoes.length - 1 ? '<div class="essay-divider">· · ·</div>' : ''}`).join('')}
+      <div class="essay-divider">· · ·</div>
+      <div class="essay-block" id="nav-conclusao"><p class="body-text">${esc(data.conclusao && data.conclusao.leitura)}</p></div>
+      <div class="essay-block" id="nav-final"><p class="closing-q">${esc(data.apelo_final)}</p></div>
+    `;
+
+    const pulpito = `
+      <div class="division-card" id="nav-abertura">
+        <div class="division-head"><div class="division-num alt">A</div><h2 class="division-title">Abertura</h2></div>
+        <hr class="card-rule">
+        <p class="body-text">${esc(data.abertura)} <span class="pause">(pausa)</span></p>
+      </div>
+      <div class="section-header" id="nav-desenvolvimento"><span class="flame">🔥</span><span class="label">Desenvolvimento</span></div>
+      <hr class="section-rule">
+      ${divisoes.map((d, i) => `
+        <div class="division-card" id="nav-div${i + 1}">
+          <div class="division-head"><div class="division-num">${i + 1}</div><h2 class="division-title">${esc(d.tituloSafe)}</h2></div>
+          <hr class="card-rule">
+          <p class="body-text">${esc(d.pulpito)}</p>
+        </div>
+      `).join('')}
+      <div class="division-card" id="nav-conclusao">
+        <div class="division-head"><div class="division-num alt">C</div><h2 class="division-title">Conclusão</h2></div>
+        <hr class="card-rule">
+        <div class="apelo-box"><span class="tag-label">Apelo</span><p class="body-text" style="margin-bottom:0;">${esc(data.conclusao && data.conclusao.pulpito)}</p></div>
+      </div>
+      <div class="division-card" id="nav-final">
+        <div class="division-head"><div class="division-num alt">P</div><h2 class="division-title">Palavra Final</h2></div>
+        <hr class="card-rule">
+        <p class="closing-q">${esc(data.apelo_final)}</p>
+      </div>
+    `;
+
+    const toc = [
+      { id: 'nav-abertura', num: 'A', plain: true, label: 'Abertura' },
+      ...divisoes.map((d, i) => ({ id: 'nav-div' + (i + 1), num: String(i + 1), plain: false, label: esc(d.tituloSafe) })),
+      { id: 'nav-conclusao', num: 'C', plain: true, label: 'Conclusão' },
+      { id: 'nav-final', num: 'P', plain: true, label: 'Palavra Final' }
+    ];
+
+    return {
+      exegetico, leitura, pulpito, toc,
+      titulo: esc(data.titulo) || 'Meu Sermão',
+      citacao: data.citacao_biblica_curta || '',
+      lexEntries
+    };
+  }
+
+  // ---- Persistência (window.storage — não usamos localStorage) ----
+  async function saveCustomSermon(raw, parsed){
+    if(!window.storage) return;
+    try{
+      await window.storage.set('meu-sermao-raw', raw, false);
+      await window.storage.set('meu-sermao-data', JSON.stringify(parsed), false);
+    }catch(e){ /* falha ao salvar não deve travar o fluxo */ }
+  }
+  async function saveActiveSourcePref(src){
+    if(!window.storage) return;
+    try{ await window.storage.set('pregacao-pro-active-source', src, false); }catch(e){}
+  }
+  async function loadCustomSermon(){
+    if(!window.storage) return;
+    try{
+      const dataRes = await window.storage.get('meu-sermao-data', false);
+      const rawRes = await window.storage.get('meu-sermao-raw', false).catch(() => null);
+      if(dataRes && dataRes.value){
+        const parsed = JSON.parse(dataRes.value);
+        customContent = buildContentFromData(parsed);
+        customRaw = rawRes ? rawRes.value : '';
+        Object.assign(lexData, customContent.lexEntries || {});
+        enableCustomSourceButton();
+
+        let pref = null;
+        try{ pref = await window.storage.get('pregacao-pro-active-source', false); }catch(e){}
+        if(pref && pref.value === 'custom'){
+          activeSermon = 'custom';
+          sourceButtons.forEach(b => b.classList.toggle('active', b.getAttribute('data-source') === 'custom'));
+          updateTitleDisplay();
+          renderSermon(document.body.getAttribute('data-mode') || 'exegetico');
+        }
+      }
+    }catch(e){ /* nada salvo ainda — segue com o Sermão de Exemplo */ }
+  }
+  loadCustomSermon();
+
+  // ---- Modal "Inserir / Editar Sermão" ----
+  const inputOverlay = document.getElementById('inputOverlay');
+  const sermonInput = document.getElementById('sermonInput');
+  const inputError = document.getElementById('inputError');
+  const processBtn = document.getElementById('processBtn');
+  const inputSpinner = document.getElementById('inputSpinner');
+
+  function openInputModal(){
+    sermonInput.value = customRaw || '';
+    inputError.classList.remove('show');
+    inputError.textContent = '';
+    inputOverlay.classList.add('open');
+  }
+  function closeInputModal(){
+    inputOverlay.classList.remove('open');
+  }
+  document.getElementById('insertBtn').addEventListener('click', openInputModal);
+  document.getElementById('inputClose').addEventListener('click', closeInputModal);
+  document.getElementById('inputCancel').addEventListener('click', closeInputModal);
+  inputOverlay.addEventListener('click', (e) => {
+    if(e.target === inputOverlay) closeInputModal();
+  });
+
+  // ---- Fallback local: gera estrutura básica a partir do texto colado,
+  // sem depender da API, caso a chamada falhe ----
+  function splitIntoSentences(text){
+    const cleaned = text.replace(/\s+/g, ' ').trim();
+    let sentences = cleaned.split(/(?<=[.!?])\s+(?=[A-ZÀ-ÖØ-Ý0-9"'])/).map(s => s.trim()).filter(Boolean);
+    if(sentences.length === 0) sentences = [cleaned];
+    return sentences;
+  }
+  function groupIntoParagraphs(sentences, perGroup){
+    const paragraphs = [];
+    for(let i = 0; i < sentences.length; i += perGroup){
+      paragraphs.push(sentences.slice(i, i + perGroup).join(' '));
+    }
+    return paragraphs.length ? paragraphs : [sentences.join(' ')];
+  }
+  function detectCitation(text){
+    const m = text.match(/\b([1-3]?\s?[A-ZÀ-Ú][a-zà-úçã]+)\s+(\d{1,3})[:\.](\d{1,3}(?:-\d{1,3})?)\b/);
+    return m ? (m[1] + ' ' + m[2] + ':' + m[3]) : '';
+  }
+  function buildFallbackData(raw){
+    const sentences = splitIntoSentences(raw);
+    const paragraphs = groupIntoParagraphs(sentences, 3);
+    const total = paragraphs.length;
+
+    let aberturaCount, conclusaoCount;
+    if(total <= 2){ aberturaCount = 1; conclusaoCount = 0; }
+    else if(total <= 4){ aberturaCount = 1; conclusaoCount = 1; }
+    else { aberturaCount = Math.max(1, Math.round(total * 0.15)); conclusaoCount = Math.max(1, Math.round(total * 0.15)); }
+
+    const aberturaParas = paragraphs.slice(0, aberturaCount);
+    const conclusaoParas = conclusaoCount > 0 ? paragraphs.slice(total - conclusaoCount) : [paragraphs[total - 1]];
+    const devEnd = conclusaoCount > 0 ? total - conclusaoCount : Math.max(aberturaCount, total - 1);
+    let devParas = paragraphs.slice(aberturaCount, devEnd);
+    if(devParas.length === 0) devParas = [paragraphs[Math.min(aberturaCount, total - 1)] || paragraphs[0]];
+
+    const numDivisions = Math.min(3, devParas.length);
+    const chunkSize = Math.ceil(devParas.length / numDivisions);
+    const divisoes = [];
+    for(let i = 0; i < numDivisions; i++){
+      const chunk = devParas.slice(i * chunkSize, (i + 1) * chunkSize);
+      const texto = chunk.join(' ') || devParas[0];
+      divisoes.push({
+        titulo: 'Parte ' + (i + 1),
+        versiculos: '',
+        exposicao: texto,
+        termo_grego: null,
+        leitura: texto,
+        pulpito: texto + ' (pausa)'
+      });
+    }
+
+    const aberturaTexto = aberturaParas.join(' ');
+    const conclusaoTexto = conclusaoParas.join(' ');
+    const primeiraFrase = sentences[0] || 'Sermão Personalizado';
+    const tituloCurto = primeiraFrase.split(' ').slice(0, 8).join(' ') + (primeiraFrase.split(' ').length > 8 ? '…' : '');
+
+    return {
+      titulo: tituloCurto || 'Meu Sermão',
+      citacao_biblica_curta: detectCitation(raw),
+      proposicao: primeiraFrase,
+      abertura: aberturaTexto,
+      divisoes: divisoes,
+      conclusao: { texto: conclusaoTexto, leitura: conclusaoTexto, pulpito: conclusaoTexto + ' (pausa)' },
+      apelo_final: sentences[sentences.length - 1] || 'Que esta palavra continue ressoando em seu coração.'
+    };
+  }
+
+  // Aplica um objeto de dados (vindo da API ou do fallback local) ao app
+  async function applyProcessedData(data, raw){
+    customContent = buildContentFromData(data);
+    customRaw = raw;
+    activeSermon = 'custom';
+    Object.assign(lexData, customContent.lexEntries || {});
+
+    await saveCustomSermon(raw, data);
+    await saveActiveSourcePref('custom');
+
+    enableCustomSourceButton();
+    sourceButtons.forEach(b => b.classList.toggle('active', b.getAttribute('data-source') === 'custom'));
+    updateTitleDisplay();
+    renderSermon(document.body.getAttribute('data-mode') || 'exegetico');
+  }
+
+  async function processSermon(){
+    const raw = sermonInput.value.trim();
+    inputError.classList.remove('show', 'notice');
+    inputError.textContent = '';
+
+    if(!raw){
+      inputError.textContent = 'Cole o texto do sermão antes de processar.';
+      inputError.classList.add('show');
+      return;
+    }
+
+    processBtn.disabled = true;
+    inputSpinner.classList.add('show');
+
+    try{
+      const prompt = `Você é um assistente de edição homilética batista. Abaixo está o texto bruto de um sermão. Responda APENAS com um JSON válido (sem markdown, sem crases, sem texto antes ou depois), extremamente conciso, exatamente neste formato:
+{"titulo":"...","citacao_biblica_curta":"livro capítulo:versículos","proposicao":"(1 frase)","abertura":"(1-2 frases de contexto)","divisoes":[{"titulo":"...","versiculos":"...","exposicao":"(1 frase técnica/exegética)","termo_grego":{"palavra":"...","translit":"...","strong":"G____","classe":"Verbo/Substantivo/Adjetivo","definicao":"(1 frase)","nota":"(1 frase)"},"leitura":"(1-2 frases em tom de ensaio contínuo, sem marcadores orais)","pulpito":"(1-2 frases em tom de pregação falada, pode incluir (pausa) uma vez)"}],"conclusao":{"texto":"(1-2 frases)","leitura":"(1 frase)","pulpito":"(1-2 frases)"},"apelo_final":"(1 frase de impacto, pergunta ou desafio pastoral)"}
+Se não houver termo grego relevante numa divisão, use "termo_grego":null. Identifique no máximo 3 divisões a partir da estrutura real do texto (introdução, desenvolvimento, conclusão).
+Sermão bruto:
+"""
+${raw.slice(0, 6000)}
+"""`;
+
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-6",
+          max_tokens: 1000,
+          messages: [{ role: "user", content: prompt }]
+        })
+      });
+
+      if(!response.ok){
+        throw new Error('Falha na resposta da API (' + response.status + ')');
+      }
+
+      const dataResp = await response.json();
+      const textOut = (dataResp.content || []).map(b => b.text || '').join('');
+      const clean = textOut.replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(clean);
+
+      await applyProcessedData(parsed, raw);
+      closeInputModal();
+
+    }catch(err){
+      // A API falhou (rede, formato de resposta, JSON inválido etc.) —
+      // em vez de travar no erro, gera uma estrutura básica a partir do
+      // próprio texto colado, para que o sermão carregue nos 3 modos.
+      try{
+        const fallbackData = buildFallbackData(raw);
+        await applyProcessedData(fallbackData, raw);
+        inputError.textContent = 'Não foi possível conectar à IA agora. Uma estrutura básica foi gerada a partir do seu texto e já está disponível em "Meu Sermão". Você pode reprocessar depois para uma versão mais elaborada.';
+        inputError.classList.add('show', 'notice');
+      }catch(fallbackErr){
+        inputError.textContent = 'Não foi possível processar o sermão agora. Tente novamente em instantes.';
+        inputError.classList.add('show');
+      }
+    }finally{
+      processBtn.disabled = false;
+      inputSpinner.classList.remove('show');
+    }
+  }
+  processBtn.addEventListener('click', processSermon);
 </script>
 </body>
 </html>
