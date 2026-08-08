@@ -1953,24 +1953,25 @@
 
     try{
       const prompt = `Você é um homileta e exegeta especialista. Seu trabalho é receber uma transcrição bruta (YouTube/áudio) e atuar como um filtro inteligente, sintetizando e lapidando o conteúdo.
-Sua resposta DEVE ser estritamente um JSON válido no formato solicitado, sem textos adicionais antes ou depois.
+Sua resposta DEVE ser estritamente um JSON válido, completo e bem formado (todas as chaves fechadas), sem markdown, sem crases, sem texto antes ou depois.
 
 Diretrizes de Síntese e Lapidação:
 1. DEPURAR: Ignore completamente marcadores de tempo, ruídos, saudações e dinâmicas de palco.
-2. SINTETIZAR: Seja altamente conciso. Não repita parágrafos.
-3. EXEGESE: Mapeie o texto bíblico principal e identifique de 1 a 3 termos-chave originais (Grego/Hebraico) com códigos de Strong.
-4. ESTRUTURA DOS MODOS:
-   - Exegético: análise curta do texto com o termo no idioma original.
-   - Leitura: texto fluido em no máximo 2 ou 3 parágrafos curtos por divisão.
-   - Púlpito: apenas tópicos objetivos, frases de impacto e âncoras para oratória.
-5. LIMITES DE TAMANHO:
-   - Título e Proposição: mantenha em 1 frase curta.
-   - Abertura e Conclusão: no máximo 150 palavras cada.
-   - Divisões: no máximo 3 divisões centrais.
+2. COMPLETUDE ACIMA DE TUDO: identifique de 2 a 3 divisões reais na estrutura do sermão (introdução, desenvolvimento, conclusão) e preencha TODAS elas por completo. Nunca pare no meio nem omita uma divisão para economizar espaço — se precisar cortar algo, encurte o texto de cada campo, mas jamais deixe uma divisão pela metade ou de fora.
+3. SINTETIZAR: escreva de forma objetiva, sem repetir parágrafos, mas com frases completas e substanciais — não telegráficas.
+4. EXEGESE: mapeie o texto bíblico principal e identifique 1 termo-chave original (Grego/Hebraico) por divisão, com código de Strong, quando fizer sentido.
+5. ESTRUTURA DOS MODOS:
+   - Exegético: análise de 2-4 frases por divisão, com o termo no idioma original.
+   - Leitura: texto fluido em 2-3 parágrafos curtos por divisão.
+   - Púlpito: tópicos objetivos, frases de impacto e âncoras para oratória (ex: "(pausa)").
+6. LIMITES DE TAMANHO (equilibrados, não minimalistas):
+   - Título e Proposição: 1 frase, mas completa e substancial.
+   - Abertura e Conclusão: até 150 palavras cada, aproveitando bem esse espaço.
+   - Divisões: 2 a 3 divisões, todas completas — prefira 2 divisões bem desenvolvidas a 3 divisões incompletas.
 
-Formato JSON exato a preencher (respeite todas as chaves, sem markdown, sem crases):
-{"titulo":"...","citacao_biblica_curta":"livro capítulo:versículos","proposicao":"(1 frase curta)","abertura":"(até 150 palavras, contexto)","divisoes":[{"titulo":"...","versiculos":"...","exposicao":"(análise curta com o termo original)","termo_grego":{"palavra":"...","translit":"...","strong":"G____ ou H____","classe":"Verbo/Substantivo/Adjetivo","definicao":"(1 frase)","nota":"(1 frase)"},"leitura":"(2-3 parágrafos curtos, tom de ensaio contínuo, sem marcadores orais)","pulpito":"(tópicos objetivos e frases de impacto, pode incluir (pausa) como âncora de oratória)"}],"conclusao":{"texto":"(até 150 palavras)","leitura":"(1 parágrafo curto)","pulpito":"(tópicos/frases de impacto)"},"apelo_final":"(1 frase de impacto, pergunta ou desafio pastoral)"}
-Se não houver termo grego/hebraico relevante numa divisão, use "termo_grego":null. No máximo 3 divisões, extraídas da estrutura real do texto (introdução, desenvolvimento, conclusão).
+Formato JSON exato a preencher (respeite todas as chaves):
+{"titulo":"...","citacao_biblica_curta":"livro capítulo:versículos","proposicao":"(1 frase completa)","abertura":"(até 150 palavras, contexto)","divisoes":[{"titulo":"...","versiculos":"...","exposicao":"(2-4 frases com o termo original)","termo_grego":{"palavra":"...","translit":"...","strong":"G____ ou H____","classe":"Verbo/Substantivo/Adjetivo","definicao":"(1 frase)","nota":"(1 frase)"},"leitura":"(2-3 parágrafos curtos, tom de ensaio contínuo, sem marcadores orais)","pulpito":"(tópicos objetivos e frases de impacto, pode incluir (pausa) como âncora de oratória)"}],"conclusao":{"texto":"(até 150 palavras)","leitura":"(1 parágrafo)","pulpito":"(tópicos/frases de impacto)"},"apelo_final":"(1 frase de impacto, pergunta ou desafio pastoral)"}
+Se não houver termo grego/hebraico relevante numa divisão, use "termo_grego":null. IMPORTANTE: o array "divisoes" deve conter todas as divisões prometidas, cada uma com todos os campos preenchidos — resposta incompleta é pior que resposta mais curta em cada campo.
 
 Transcrição bruta:
 """
@@ -1990,7 +1991,7 @@ ${raw.slice(0, 6000)}
           body: JSON.stringify({
             contents: [{ role: "user", parts: [{ text: prompt }] }],
             generationConfig: {
-              maxOutputTokens: 4096,
+              maxOutputTokens: 8192,
               thinkingConfig: { thinkingLevel: "low" }
             }
           })
