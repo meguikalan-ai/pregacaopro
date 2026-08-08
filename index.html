@@ -115,6 +115,7 @@
   .source-switch button.active{ background: var(--pill-text); color:#fff; border-color: var(--pill-text); }
   .source-switch button:disabled{ opacity:.4; cursor:not-allowed; }
   body[data-mode="pulpito"] #insertBtn{ display:none; }
+  body[data-mode="pulpito"] #libraryBtn{ display:none; }
   .pill{
     display:flex; align-items:center; gap:6px;
     background: rgba(255,255,255,.14);
@@ -382,6 +383,31 @@
   }
   .input-error.show{ display:block; }
   .input-error.notice{ color: var(--pill-text); }
+
+  /* ---------- BIBLIOTECA ---------- */
+  .library-list{ overflow-y:auto; flex:1; margin: 4px -6px 0; padding: 0 6px; }
+  .library-item{
+    display:flex; align-items:center; gap:12px;
+    padding: 14px 12px; border-radius:16px; margin-bottom:8px;
+    background: var(--card-bg); cursor:pointer;
+  }
+  .library-item:active{ background: var(--anchor-bg); }
+  .library-item-main{ flex:1; min-width:0; }
+  .library-item-title{
+    font-family: Georgia, serif; font-weight:800; font-size:16px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .library-item-sub{ font-size:12.5px; color: var(--ink-soft); margin-top:2px; }
+  .library-item-delete{
+    flex:0 0 auto; width:34px; height:34px; border-radius:50%; border:none;
+    background:transparent; color: var(--ink-soft); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .library-item-delete:active{ background: var(--anchor-bg); color:#C0392B; }
+  .library-empty{
+    text-align:center; padding: 40px 20px; color: var(--ink-soft);
+    font-family: Georgia, serif; font-size:15px; font-style:italic;
+  }
   .input-spinner{
     display:none; align-items:center; gap:8px; font-size:13.5px; color: var(--ink-soft);
     margin-right:auto;
@@ -592,6 +618,11 @@
         Inserir Sermão
       </button>
 
+      <button class="pill" id="libraryBtn" title="Biblioteca de sermões salvos">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M4 19.5V4.5A1.5 1.5 0 0 1 5.5 3H15l5 5v11.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19.5Z"/><path d="M15 3v5h5"/></svg>
+        Biblioteca
+      </button>
+
       <button class="dot-pill" id="dotToggle" title="Modo pregação ativo">
         <span class="dot" id="dotIndicator"></span>
       </button>
@@ -640,6 +671,7 @@
     <div class="source-switch" id="sourceSwitch">
       <button data-source="exemplo" class="active">📖 Sermão de Exemplo</button>
       <button data-source="custom" id="customSourceBtn" disabled>✍️ Meu Sermão</button>
+      <button id="saveLibraryBtn" disabled title="Salvar este sermão na Biblioteca">💾 Salvar na Biblioteca</button>
     </div>
 
     <h1 class="title" id="mainTitle">Quando o Filho do Homem Vier,<br>Achará Fé na Terra?</h1>
@@ -673,6 +705,17 @@
         <button class="btn-secondary" id="inputCancel">Cancelar</button>
         <button class="btn-primary" id="processBtn">Processar Sermão</button>
       </div>
+    </div>
+  </div>
+
+  <div class="input-overlay" id="libraryOverlay">
+    <div class="input-modal">
+      <div class="input-modal-head">
+        <div class="input-modal-title">📚 Biblioteca de Sermões</div>
+        <button class="lex-modal-close" id="libraryClose">✕</button>
+      </div>
+      <div class="input-hint">Sermões salvos ficam disponíveis aqui entre sessões. Toque em um deles para abrir, ou no ícone de lixeira para remover.</div>
+      <div id="libraryList" class="library-list"></div>
     </div>
   </div>
 
@@ -1070,6 +1113,184 @@
   // ---- Estado: Sermão de Exemplo vs. Meu Sermão ----
   let activeSermon = 'exemplo';   // 'exemplo' | 'custom'
   let customContent = null;       // {exegetico, leitura, pulpito, toc, titulo, citacao, lexEntries}
+
+  // ---- "Meu Sermão" inicial: A Parábola do Grão de Mostarda (Lucas 13:18-19) ----
+  // Reconstrução homilética original, no mesmo padrão de rigor do sermão de exemplo.
+  const MUSTARD_CONTENT = {
+    titulo: 'A Árvore Que Ninguém Esperava',
+    citacao: 'A Parábola do Grão de Mostarda — Lucas 13:18-19 (cf. Mateus 13:31-32)',
+    lexEntries: {},
+    exegetico: `
+      <div class="prop-box">
+        <div class="prop-eyebrow">✨ Proposição Central / Tema do Sermão</div>
+        <div class="prop-text">"O Reino de Deus não avança pela lógica humana de grandeza visível, mas pela lógica paradoxal de Cristo: começa pequeno e contestado — como a mulher curada no sábado, como o próprio Senhor crucificado — e se torna, pela ação soberana de Deus, a árvore em que as nações encontram abrigo."</div>
+      </div>
+      <p class="body-text scripture">"Jesus perguntou: a que se parece o Reino de Deus, a que o compararei? É como um grão de mostarda que um homem lançou em sua horta; cresceu, tornou-se uma árvore, e as aves do céu vieram fazer ninho em seus ramos." (Lucas 13:18-19)</p>
+
+      <div class="division-card" id="nav-abertura">
+        <div class="division-head"><div class="division-num alt">A</div><h2 class="division-title">Abertura: Um Sinal Contestado (Lucas 13:10-17)</h2></div>
+        <hr class="card-rule">
+        <p class="body-text">O texto começa com "Ele dizia, pois" (v.18) — partícula de continuidade que liga a parábola diretamente ao episódio anterior: a cura de uma mulher curvada havia dezoito anos, num sábado, numa sinagoga. O chefe da sinagoga se indigna; a multidão se alegra. É exatamente nesse contexto — um pequeno milagre, contestado por autoridade religiosa, celebrado por gente comum — que Jesus pergunta: "a que se parece o Reino de Deus?"</p>
+        <div class="hist-context">
+          <div class="hist-label">Contexto Histórico-Cultural</div>
+          <p>Curar em sábado era juridicamente controverso na halaká do primeiro século; o título "filha de Abraão" (13:16) dado à mulher eleva sua dignidade pactual apesar de sua condição marginal. A cena que precede a parábola já é, ela mesma, um grão de mostarda: um gesto pequeno, discutido, que a maioria não reconheceria como sinal do Reino.</p>
+        </div>
+        <p class="body-text">A parábola, portanto, não é ensino abstrato sobre crescimento em geral — é o comentário do próprio Jesus sobre o que Ele acabou de fazer.</p>
+      </div>
+
+      <div class="section-header" id="nav-desenvolvimento"><span class="flame">🔥</span><span class="label">Desenvolvimento Homilético</span></div>
+      <hr class="section-rule">
+
+      <div class="division-card" id="nav-div1">
+        <div class="division-head"><div class="division-num">1</div><h2 class="division-title">A Pergunta Dupla (v. 18)</h2></div>
+        <hr class="card-rule">
+        <div class="exposicao-label">Exposição do Texto:</div>
+        <p class="body-text">"A que se parece... a que o compararei?" é fórmula rabínica conhecida (<em>mashal</em>) para introduzir ensino por comparação. Jesus não está improvisando uma ilustração; está usando um gênero didático reconhecível pelos ouvintes para responder a uma pergunta que ninguém fez em voz alta, mas que a cena da sinagoga levantou: como, afinal, esse Reino se impõe num mundo que acabou de resistir a ele?</p>
+        <div class="hist-context">
+          <div class="hist-label">Contexto Histórico-Cultural</div>
+          <p>A dupla pergunta retórica aparece em outras parábolas rabínicas de comparação preservadas na literatura judaica posterior — recurso pedagógico que sinaliza ao ouvinte: preste atenção, o que vem a seguir é chave interpretativa, não decoração.</p>
+        </div>
+      </div>
+
+      <div class="division-card" id="nav-div2">
+        <div class="division-head"><div class="division-num">2</div><h2 class="division-title">O Grão Insignificante (v. 19a)</h2></div>
+        <hr class="card-rule">
+        <div class="exposicao-label">Exposição do Texto:</div>
+        <p class="body-text">O <button class="lex-chip" data-code="G2848">📖 kókkos <span class="lex-code">G2848</span></button> de mostarda que "um homem lançou em sua horta" não é citado por precisão botânica — é idiomatismo proverbial judaico para a menor quantidade concebível. Jesus escolhe deliberadamente a menor unidade de medida popular disponível como ponto de partida da imagem.</p>
+        <div class="hist-context">
+          <div class="hist-label">Contexto Histórico-Cultural</div>
+          <p>A expressão "pequeno como grão de mostarda" era lugar-comum na fala popular judaica para designar quantidades ínfimas — o equivalente a "do tamanho de um alfinete" em português. Jesus fala a linguagem do povo, não a linguagem de um tratado de botânica.</p>
+        </div>
+      </div>
+
+      <div class="division-card" id="nav-div3">
+        <div class="division-head"><div class="division-num">3</div><h2 class="division-title">A Árvore e as Aves: o Eco de Ezequiel 17 (v. 19b)</h2></div>
+        <hr class="card-rule">
+        <div class="exposicao-label">Exposição do Texto:</div>
+        <p class="body-text">"Tornou-se uma árvore, e as aves do céu vieram <button class="lex-chip" data-code="G2681">📖 kataskēnóō <span class="lex-code">G2681</span></button> em seus ramos" não é hipérbole solta — é citação deliberada da imagem profética de Ezequiel 17:22-24: Deus mesmo planta um broto tenro que se torna cedro nobre, sob o qual toda ave se abriga, em contraste explícito com o cedro imperial arrogante que será derrubado. A mesma imagem aparece em Daniel 4, onde a grande árvore representa o império babilônico.</p>
+        <div class="hist-context">
+          <div class="hist-label">Contexto Histórico-Cultural</div>
+          <p>No imaginário do Antigo Oriente Médio, "a grande árvore que abriga as aves" era figura-padrão para um império que dá guarida a nações subjugadas (Ezequiel 31; Daniel 4). Jesus retoma essa figura, mas a aplica a um arbusto de mostarda, não a um cedro — o Reino fará o que os impérios fazem (reunir nações sob seu abrigo), mas por um caminho que nenhum império escolheria.</p>
+        </div>
+        <p class="body-text">O ponto exegético central: Jesus não erra a escala nem exagera por efeito retórico. Ele está afirmando, com precisão profética, que o Reino de Deus chegará ao alcance universal que Ezequiel prometeu — mas por meio da fragilidade, não da força.</p>
+      </div>
+
+      <div class="division-card" id="nav-conclusao">
+        <div class="division-head"><div class="division-num alt">C</div><h2 class="division-title">Conclusão</h2></div>
+        <hr class="card-rule">
+        <p class="body-text">O verdadeiro Rei desse Reino foi Ele mesmo plantado em fraqueza — nascido em estábulo, crucificado como desprezado — e é precisamente esse Rei quem se torna abrigo para judeus e gentios, cumprindo o que nem Babilônia nem Roma jamais poderiam cumprir pela força. A igreja, portanto, não precisa imitar a lógica de grandeza visível do mundo para participar do que Deus está construindo; sua confiança está no que Cristo, o verdadeiro grão que se torna árvore, já está fazendo.</p>
+      </div>
+
+      <div class="division-card" id="nav-final">
+        <div class="division-head"><div class="division-num alt">P</div><h2 class="division-title">Nota Pastoral Final</h2></div>
+        <hr class="card-rule">
+        <p class="closing-q">Onde você tem procurado cedros — grandeza visível, aprovação imediata — em vez de confiar no crescimento escondido que só Cristo pode dar?</p>
+      </div>
+    `,
+
+    leitura: `
+      <p class="essay-open">Há um tipo de crescimento que nenhum agricultor consegue planejar — e é exatamente esse tipo que Jesus escolhe para descrever o Reino de Deus.</p>
+
+      <div class="essay-block" id="nav-abertura">
+        <p class="body-text">A cena que precede esta pequena parábola é reveladora: uma mulher curvada por dezoito anos é curada num sábado, numa sinagoga; a autoridade religiosa se indigna, a multidão se alegra. É nesse instante — um milagre pequeno, contestado, quase invisível aos olhos de quem tinha poder para julgá-lo — que Jesus pergunta: a que se parece o Reino de Deus?</p>
+      </div>
+
+      <div class="essay-divider">· · ·</div>
+
+      <div class="essay-block" id="nav-div1">
+        <p class="body-text">A dupla pergunta retórica com que Jesus abre o ensino não é hesitação — é convite formal à atenção, um recurso didático reconhecível para quem O ouvia. E o que segue responde a uma pergunta que ninguém fez em voz alta na sinagoga, mas que a cena inteira levantou: como esse Reino, que acabou de encontrar resistência, chega a algum lugar?</p>
+      </div>
+
+      <div class="essay-divider">· · ·</div>
+
+      <div class="essay-block" id="nav-div2">
+        <p class="body-text">A resposta começa pela menor imagem disponível: um grão de mostarda, lançado numa horta comum. Não é precisão botânica — é expressão popular para a menor quantidade concebível, a linguagem de quem fala ao povo, não a um tratado científico. Jesus escolhe, de propósito, o ponto de partida mais desprezível que Seus ouvintes conseguiam imaginar.</p>
+      </div>
+
+      <div class="essay-divider">· · ·</div>
+
+      <div class="essay-block" id="nav-div3">
+        <p class="body-text">E então a semente se torna árvore, e as aves do céu vêm abrigar-se em seus ramos — imagem que qualquer ouvinte formado nas Escrituras reconheceria: é a figura de Ezequiel, do broto tenro que Deus mesmo planta e que se torna cedro nobre, abrigo para toda ave, em contraste com o cedro orgulhoso dos impérios que há de cair. É também a árvore de Daniel, símbolo do poder babilônico. Jesus toma emprestada essa imagem de grandeza imperial e a aplica, de propósito, a um arbusto de horta — o Reino fará o que os impérios prometem fazer, reunir as nações sob seu abrigo, mas por um caminho que nenhum império escolheria.</p>
+      </div>
+
+      <div class="essay-divider">· · ·</div>
+
+      <div class="essay-block" id="nav-conclusao">
+        <p class="body-text">O Rei desse Reino foi Ele mesmo plantado em fraqueza — nascido num estábulo, morto como desprezado — e é justamente esse Rei quem se torna abrigo para todas as nações, cumprindo o que nenhum império jamais alcançou pela força. Não é preciso, portanto, competir pela grandeza que o mundo reconhece para participar do que Deus está construindo.</p>
+      </div>
+
+      <div class="essay-block" id="nav-final">
+        <p class="closing-q">Onde você tem procurado cedros — grandeza visível, aprovação imediata — em vez de confiar no crescimento escondido que só Cristo pode dar?</p>
+      </div>
+    `,
+
+    pulpito: `
+      <p class="body-text">Amados irmãos, hoje nós vamos olhar pra uma das parábolas mais curtas de Jesus — só dois versículos. <span class="pause">(pausa)</span> Mas antes de ler o texto, precisamos lembrar o que aconteceu bem antes dele.</p>
+
+      <div class="division-card" id="nav-abertura">
+        <div class="division-head"><div class="division-num alt">A</div><h2 class="division-title">Abertura</h2></div>
+        <hr class="card-rule">
+        <span class="modulation">tom narrativo, ritmo mais lento</span>
+        <p class="body-text">Jesus acabou de curar, num sábado, uma mulher que estava curvada havia dezoito anos. <span class="pause">(pausa)</span> O chefe da sinagoga ficou indignado. O povo ficou alegre. E é bem ali, nesse momento pequeno e contestado, que Jesus pergunta: "a que se parece o Reino de Deus?"</p>
+      </div>
+
+      <div class="section-header" id="nav-desenvolvimento"><span class="flame">🔥</span><span class="label">Desenvolvimento</span></div>
+      <hr class="section-rule">
+
+      <div class="division-card" id="nav-div1">
+        <div class="division-head"><div class="division-num">1</div><h2 class="division-title">A Pergunta Dupla</h2></div>
+        <hr class="card-rule">
+        <p class="body-text">"A que se parece? A que o compararei?" <span class="pause">(pausa)</span> Isso não é hesitação de Jesus. É Ele dizendo: prestem atenção, o que vem agora é a chave.</p>
+      </div>
+
+      <div class="division-card" id="nav-div2">
+        <div class="division-head"><div class="division-num">2</div><h2 class="division-title">O Grão Insignificante</h2></div>
+        <hr class="card-rule">
+        <p class="body-text">Um grão de mostarda. <span class="pause">(pausa)</span> A menor coisa que aquele povo conseguia imaginar. Jesus não tá dando aula de botânica — Ele tá falando a língua do povo, escolhendo de propósito o ponto de partida mais desprezível possível.</p>
+        <p class="body-text altercacao">E se Deus escolhe o menor ponto de partida — onde é que você tem achado que a sua vida é pequena demais pra Ele usar?</p>
+      </div>
+
+      <div class="division-card" id="nav-div3">
+        <div class="division-head"><div class="division-num">3</div><h2 class="division-title">A Árvore e as Aves</h2></div>
+        <hr class="card-rule">
+        <p class="body-text">Aquele grão vira árvore. E as aves do céu vêm fazer ninho nos ramos. <span class="pause">(pausa longa)</span> Isso não é exagero — é a mesma imagem de Ezequiel, do broto que Deus planta e que vira cedro, abrigo pra toda ave. Só que Jesus usa isso pra um arbusto de horta, não pra um cedro imperial.</p>
+        <div class="ilustracao-box">
+          <span class="tag-label">Ilustração</span>
+          <p class="body-text" style="margin-bottom:0;">Os impérios prometem abrigo pela força — Babilônia, Roma, qualquer império. <span class="pause">(pausa)</span> Mas o Reino de Deus promete o mesmo abrigo, pra todas as nações, começando não num trono, mas numa manjedoura, e terminando não numa coroa, mas numa cruz.</p>
+        </div>
+      </div>
+
+      <div class="division-card" id="nav-conclusao">
+        <div class="division-head"><div class="division-num alt">C</div><h2 class="division-title">Conclusão</h2></div>
+        <hr class="card-rule">
+        <div class="apelo-box">
+          <span class="tag-label">Apelo</span>
+          <p class="body-text" style="margin-bottom:0;">Igreja, nós não precisamos parecer grandes pro mundo pra fazer parte do que Deus está construindo. <span class="pause">(pausa)</span> O Rei desse Reino foi plantado em fraqueza — e é Ele quem virou abrigo pras nações.</p>
+        </div>
+      </div>
+
+      <div class="division-card" id="nav-final">
+        <div class="division-head"><div class="division-num alt">P</div><h2 class="division-title">Palavra Final</h2></div>
+        <hr class="card-rule">
+        <span class="modulation">baixe o tom, fale devagar</span>
+        <p class="closing-q">Onde você tem procurado cedros — grandeza visível, aprovação imediata — em vez de confiar no crescimento escondido que só Cristo pode dar?</p>
+      </div>
+    `,
+
+    toc: [
+      { id: 'nav-abertura', num: 'A', plain: true, label: 'Abertura', sub: 'Um sinal contestado (Lc 13:10-17)' },
+      { id: 'nav-div1', num: '1', plain: false, label: 'A Pergunta Dupla', sub: 'v. 18' },
+      { id: 'nav-div2', num: '2', plain: false, label: 'O Grão Insignificante', sub: 'v. 19a' },
+      { id: 'nav-div3', num: '3', plain: false, label: 'A Árvore e as Aves', sub: 'v. 19b' },
+      { id: 'nav-conclusao', num: 'C', plain: true, label: 'Conclusão' },
+      { id: 'nav-final', num: 'P', plain: true, label: 'Palavra Final' }
+    ]
+  };
+
+  // Disponibiliza imediatamente como "Meu Sermão" — window.storage, se já
+  // houver algo salvo, sobrescreve este padrão mais adiante (loadCustomSermon).
+  customContent = MUSTARD_CONTENT;
+  enableCustomSourceButton();
   let customRaw = '';             // último texto colado, para reabrir o modal em modo de edição
 
   const ORIGINAL_TITLE_HTML = document.getElementById('mainTitle').innerHTML;
@@ -1101,6 +1322,7 @@
   }
   function enableCustomSourceButton(){
     document.getElementById('customSourceBtn').disabled = false;
+    document.getElementById('saveLibraryBtn').disabled = false;
   }
 
   function renderSermon(mode){
@@ -1179,6 +1401,16 @@
       greek: 'πίστις', translit: 'pístis', classe: 'Substantivo',
       def: 'De peíthō ("persuadir, convencer"). Significa fé, convicção firme, confiança, fidelidade. Pode designar tanto o ato de confiar quanto o conteúdo em que se confia; no uso relacional do Novo Testamento, é sobretudo confiança pessoal e perseverante em Deus.',
       note: 'No texto (v.8b), à luz de todo o capítulo, não é mero assentimento a uma doutrina — é exatamente a fé que ora sempre e não desanima (v.1). A pergunta final de Jesus mede a fé por essa perseverança.'
+    },
+    G2848: {
+      greek: 'κόκκος', translit: 'kókkos', classe: 'Substantivo',
+      def: 'Grão, semente, caroço. Usado no grego comum para a menor unidade contável de uma semente. Na literatura rabínica, "pequeno como um grão de mostarda" era expressão proverbial para a menor quantidade concebível — não uma afirmação botânica literal, mas um idiomatismo popular de pequenez extrema.',
+      note: 'Em Lucas 13:19, o grão não é apresentado como objeto de estudo científico, mas como figura de linguagem: Jesus escolhe deliberadamente a menor unidade imaginável para o seu povo original como ponto de partida da parábola.'
+    },
+    G2681: {
+      greek: 'κατασκηνόω', translit: 'kataskēnóō', classe: 'Verbo',
+      def: 'De katá ("sobre, em") + skēnóō ("armar tenda, habitar"). Literalmente "fazer morada, armar tenda, aninhar-se". Usado na Septuaginta grega para descrever aves fazendo ninho em árvores — inclusive em Ezequiel 17:23 e 31:6, onde a imagem descreve nações inteiras encontrando abrigo sob um grande reino.',
+      note: 'O mesmo verbo grego aparece em Ezequiel 17:23 (LXX) para as aves que se abrigam sob o cedro plantado por Deus — Jesus retoma deliberadamente essa imagem profética em Lucas 13:19 e Mateus 13:32.'
     }
   };
 
@@ -1422,8 +1654,8 @@
   const inputSpinner = document.getElementById('inputSpinner');
 
   function openInputModal(){
-    sermonInput.value = customRaw || '';
-    inputError.classList.remove('show');
+    sermonInput.value = ''; // sempre em branco ao abrir
+    inputError.classList.remove('show', 'notice');
     inputError.textContent = '';
     inputOverlay.classList.add('open');
   }
@@ -1436,6 +1668,136 @@
   inputOverlay.addEventListener('click', (e) => {
     if(e.target === inputOverlay) closeInputModal();
   });
+
+  // =========================================================
+  // Biblioteca de Sermões — salvar, listar, abrir e excluir
+  // =========================================================
+  let libraryEntries = [];
+
+  async function loadLibrary(){
+    if(!window.storage){ libraryEntries = []; return; }
+    try{
+      const res = await window.storage.get('biblioteca-sermoes', false);
+      libraryEntries = (res && res.value) ? JSON.parse(res.value) : [];
+    }catch(e){
+      libraryEntries = [];
+    }
+  }
+  async function persistLibrary(){
+    if(!window.storage) return;
+    try{ await window.storage.set('biblioteca-sermoes', JSON.stringify(libraryEntries), false); }
+    catch(e){ /* falha ao salvar não deve travar o app */ }
+  }
+
+  function formatSavedDate(ts){
+    try{
+      return new Date(ts).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+    }catch(e){ return ''; }
+  }
+
+  function renderLibraryList(){
+    const listEl = document.getElementById('libraryList');
+    if(libraryEntries.length === 0){
+      listEl.innerHTML = '<div class="library-empty">Nenhum sermão salvo ainda.<br>Processe um sermão e toque em "Salvar na Biblioteca".</div>';
+      return;
+    }
+    listEl.innerHTML = libraryEntries.map(entry => `
+      <div class="library-item" data-open="${entry.id}">
+        <div class="library-item-main">
+          <div class="library-item-title">${esc(entry.titulo || 'Sermão sem título')}</div>
+          <div class="library-item-sub">${esc(entry.citacao || '')}${entry.citacao ? ' · ' : ''}salvo em ${formatSavedDate(entry.savedAt)}</div>
+        </div>
+        <button class="library-item-delete" data-delete="${entry.id}" title="Excluir">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13"/></svg>
+        </button>
+      </div>
+    `).join('');
+
+    listEl.querySelectorAll('[data-open]').forEach(row => {
+      row.addEventListener('click', (e) => {
+        if(e.target.closest('[data-delete]')) return;
+        loadLibraryEntry(row.getAttribute('data-open'));
+      });
+    });
+    listEl.querySelectorAll('[data-delete]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteLibraryEntry(btn.getAttribute('data-delete'));
+      });
+    });
+  }
+
+  function loadLibraryEntry(id){
+    const entry = libraryEntries.find(e => e.id === id);
+    if(!entry) return;
+    customContent = entry.content;
+    customRaw = entry.raw || '';
+    activeSermon = 'custom';
+    enableCustomSourceButton();
+    sourceButtons.forEach(b => b.classList.toggle('active', b.getAttribute('data-source') === 'custom'));
+    updateTitleDisplay();
+    renderSermon(document.body.getAttribute('data-mode') || 'exegetico');
+    saveActiveSourcePref('custom');
+    closeLibrary();
+  }
+
+  async function deleteLibraryEntry(id){
+    const entry = libraryEntries.find(e => e.id === id);
+    const label = entry ? (entry.titulo || 'este sermão') : 'este sermão';
+    if(!window.confirm('Excluir "' + label + '" da Biblioteca? Essa ação não pode ser desfeita.')) return;
+    libraryEntries = libraryEntries.filter(e => e.id !== id);
+    await persistLibrary();
+    renderLibraryList();
+  }
+
+  async function saveCurrentToLibrary(){
+    if(!customContent) return;
+    const saveBtn = document.getElementById('saveLibraryBtn');
+    const originalLabel = saveBtn.textContent;
+    saveBtn.disabled = true;
+    saveBtn.textContent = '💾 Salvando...';
+    try{
+      const entry = {
+        id: 'sermao-' + Date.now(),
+        titulo: customContent.titulo || 'Sermão sem título',
+        citacao: customContent.citacao || '',
+        raw: customRaw || '',
+        content: {
+          exegetico: customContent.exegetico,
+          leitura: customContent.leitura,
+          pulpito: customContent.pulpito,
+          toc: customContent.toc,
+          titulo: customContent.titulo,
+          citacao: customContent.citacao
+        },
+        savedAt: Date.now()
+      };
+      libraryEntries.unshift(entry);
+      await persistLibrary();
+      saveBtn.textContent = '✅ Salvo!';
+    }catch(e){
+      saveBtn.textContent = '⚠️ Erro ao salvar';
+    }finally{
+      setTimeout(() => { saveBtn.textContent = originalLabel; saveBtn.disabled = false; }, 1400);
+    }
+  }
+
+  const libraryOverlay = document.getElementById('libraryOverlay');
+  function openLibrary(){
+    renderLibraryList();
+    libraryOverlay.classList.add('open');
+  }
+  function closeLibrary(){
+    libraryOverlay.classList.remove('open');
+  }
+  document.getElementById('libraryBtn').addEventListener('click', openLibrary);
+  document.getElementById('libraryClose').addEventListener('click', closeLibrary);
+  libraryOverlay.addEventListener('click', (e) => {
+    if(e.target === libraryOverlay) closeLibrary();
+  });
+  document.getElementById('saveLibraryBtn').addEventListener('click', saveCurrentToLibrary);
+
+  loadLibrary();
 
   // ---- Fallback local: gera estrutura básica a partir do texto colado,
   // sem depender da API, caso a chamada falhe ----
@@ -1535,10 +1897,27 @@
     inputSpinner.classList.add('show');
 
     try{
-      const prompt = `Você é um assistente de edição homilética batista. Abaixo está o texto bruto de um sermão. Responda APENAS com um JSON válido (sem markdown, sem crases, sem texto antes ou depois), extremamente conciso, exatamente neste formato:
-{"titulo":"...","citacao_biblica_curta":"livro capítulo:versículos","proposicao":"(1 frase)","abertura":"(1-2 frases de contexto)","divisoes":[{"titulo":"...","versiculos":"...","exposicao":"(1 frase técnica/exegética)","termo_grego":{"palavra":"...","translit":"...","strong":"G____","classe":"Verbo/Substantivo/Adjetivo","definicao":"(1 frase)","nota":"(1 frase)"},"leitura":"(1-2 frases em tom de ensaio contínuo, sem marcadores orais)","pulpito":"(1-2 frases em tom de pregação falada, pode incluir (pausa) uma vez)"}],"conclusao":{"texto":"(1-2 frases)","leitura":"(1 frase)","pulpito":"(1-2 frases)"},"apelo_final":"(1 frase de impacto, pergunta ou desafio pastoral)"}
-Se não houver termo grego relevante numa divisão, use "termo_grego":null. Identifique no máximo 3 divisões a partir da estrutura real do texto (introdução, desenvolvimento, conclusão).
-Sermão bruto:
+      const prompt = `Você é um homileta e exegeta especialista. Seu trabalho é receber uma transcrição bruta (YouTube/áudio) e atuar como um filtro inteligente, sintetizando e lapidando o conteúdo.
+Sua resposta DEVE ser estritamente um JSON válido no formato solicitado, sem textos adicionais antes ou depois.
+
+Diretrizes de Síntese e Lapidação:
+1. DEPURAR: Ignore completamente marcadores de tempo, ruídos, saudações e dinâmicas de palco.
+2. SINTETIZAR: Seja altamente conciso. Não repita parágrafos.
+3. EXEGESE: Mapeie o texto bíblico principal e identifique de 1 a 3 termos-chave originais (Grego/Hebraico) com códigos de Strong.
+4. ESTRUTURA DOS MODOS:
+   - Exegético: análise curta do texto com o termo no idioma original.
+   - Leitura: texto fluido em no máximo 2 ou 3 parágrafos curtos por divisão.
+   - Púlpito: apenas tópicos objetivos, frases de impacto e âncoras para oratória.
+5. LIMITES DE TAMANHO:
+   - Título e Proposição: mantenha em 1 frase curta.
+   - Abertura e Conclusão: no máximo 150 palavras cada.
+   - Divisões: no máximo 3 divisões centrais.
+
+Formato JSON exato a preencher (respeite todas as chaves, sem markdown, sem crases):
+{"titulo":"...","citacao_biblica_curta":"livro capítulo:versículos","proposicao":"(1 frase curta)","abertura":"(até 150 palavras, contexto)","divisoes":[{"titulo":"...","versiculos":"...","exposicao":"(análise curta com o termo original)","termo_grego":{"palavra":"...","translit":"...","strong":"G____ ou H____","classe":"Verbo/Substantivo/Adjetivo","definicao":"(1 frase)","nota":"(1 frase)"},"leitura":"(2-3 parágrafos curtos, tom de ensaio contínuo, sem marcadores orais)","pulpito":"(tópicos objetivos e frases de impacto, pode incluir (pausa) como âncora de oratória)"}],"conclusao":{"texto":"(até 150 palavras)","leitura":"(1 parágrafo curto)","pulpito":"(tópicos/frases de impacto)"},"apelo_final":"(1 frase de impacto, pergunta ou desafio pastoral)"}
+Se não houver termo grego/hebraico relevante numa divisão, use "termo_grego":null. No máximo 3 divisões, extraídas da estrutura real do texto (introdução, desenvolvimento, conclusão).
+
+Transcrição bruta:
 """
 ${raw.slice(0, 6000)}
 """`;
