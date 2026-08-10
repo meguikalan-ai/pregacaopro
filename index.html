@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>A Viúva Persistente — Modo Leitura</title>
+<title>Pregação Pró</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
@@ -1626,13 +1626,13 @@
       const { data, error } = await sb.from('pregacaopro_dados').select('*').eq('id', REGISTRO_ID).maybeSingle();
       if(error) throw error;
       return data;
-    }catch(e){ console.error('Supabase (carregar):', e); return null; }
+    }catch(e){ console.error('Supabase (carregar):', (e && (e.message || e.error_description || e.hint)) || JSON.stringify(e)); return null; }
   }
   async function sbSalvarCampo(campos){
     try{
       const { error } = await sb.from('pregacaopro_dados').upsert(Object.assign({ id: REGISTRO_ID }, campos));
       if(error) throw error;
-    }catch(e){ console.error('Supabase (salvar):', e); }
+    }catch(e){ console.error('Supabase (salvar):', (e && (e.message || e.error_description || e.hint)) || JSON.stringify(e)); }
   }
 
   // ---- Persistência (Supabase — sermão ativo, biblioteca, preferências) ----
