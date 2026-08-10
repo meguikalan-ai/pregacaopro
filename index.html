@@ -1958,30 +1958,30 @@
     inputSpinner.classList.add('show');
 
     try{
-      const prompt = `Você é um homileta e exegeta especialista. Seu trabalho é receber uma transcrição bruta (YouTube/áudio) e atuar como um filtro inteligente, sintetizando e lapidando o conteúdo.
+      const prompt = `Você é um homileta e exegeta especialista. Seu trabalho é receber uma transcrição bruta (YouTube/áudio) e atuar como um filtro inteligente, sintetizando e lapidando o conteúdo em uma versão AMPLIADA e aprofundada — não um resumo raso.
 Sua resposta DEVE ser estritamente um JSON válido, completo e bem formado (todas as chaves fechadas), sem markdown, sem crases, sem texto antes ou depois.
 
 Diretrizes de Síntese e Lapidação:
 1. DEPURAR: Ignore completamente marcadores de tempo, ruídos, saudações e dinâmicas de palco.
-2. COMPLETUDE ACIMA DE TUDO: identifique de 2 a 3 divisões reais na estrutura do sermão (introdução, desenvolvimento, conclusão) e preencha TODAS elas por completo. Nunca pare no meio nem omita uma divisão para economizar espaço — se precisar cortar algo, encurte o texto de cada campo, mas jamais deixe uma divisão pela metade ou de fora.
-3. SINTETIZAR: escreva de forma objetiva, sem repetir parágrafos, mas com frases completas e substanciais — não telegráficas.
-4. EXEGESE: mapeie o texto bíblico principal e identifique 1 termo-chave original (Grego/Hebraico) por divisão, com código de Strong, quando fizer sentido.
+2. PROFUNDIDADE ACIMA DE TUDO: identifique de 3 a 5 divisões reais na estrutura do sermão (introdução, desenvolvimento, conclusão) e desenvolva TODAS elas por completo, com profundidade exegética e homilética real. Nunca pare no meio nem omita uma divisão. Prefira aprofundar cada divisão a resumi-la.
+3. AMPLIAR, NÃO RESUMIR: escreva de forma rica e substancial, desenvolvendo os argumentos, ilustrações e aplicações presentes na transcrição bruta — e, quando fizer sentido teologicamente, complemente com contexto histórico, cultural ou exegético relevante ao texto bíblico, sempre fiel à mensagem original do pregador.
+4. EXEGESE: mapeie o texto bíblico principal e identifique 1 termo-chave original (Grego/Hebraico) por divisão, com código de Strong, explicando seu significado e relevância para o ponto.
 5. ESTRUTURA DOS MODOS:
-   - Exegético: análise de 2-4 frases por divisão, com o termo no idioma original.
-   - Leitura: texto fluido em 2-3 parágrafos curtos por divisão.
-   - Púlpito: tópicos objetivos, frases de impacto e âncoras para oratória (ex: "(pausa)").
-6. LIMITES DE TAMANHO (equilibrados, não minimalistas):
+   - Exegético: análise aprofundada de 1-2 parágrafos por divisão, com o termo no idioma original e sua aplicação exegética.
+   - Leitura: texto fluido e completo, em 3-4 parágrafos bem desenvolvidos por divisão.
+   - Púlpito: tópicos objetivos, frases de impacto e âncoras para oratória (ex: "(pausa)"), com espaço suficiente para uma exposição real ao vivo.
+6. LIMITES DE TAMANHO (amplos — use o espaço para aprofundar, não para economizar):
    - Título e Proposição: 1 frase, mas completa e substancial.
-   - Abertura e Conclusão: até 150 palavras cada, aproveitando bem esse espaço.
-   - Divisões: 2 a 3 divisões, todas completas — prefira 2 divisões bem desenvolvidas a 3 divisões incompletas.
+   - Abertura e Conclusão: até 300 palavras cada, desenvolvendo bem o contexto e o fechamento.
+   - Divisões: 3 a 5 divisões, todas completas e desenvolvidas em profundidade.
 
 Formato JSON exato a preencher (respeite todas as chaves):
-{"titulo":"...","citacao_biblica_curta":"livro capítulo:versículos","proposicao":"(1 frase completa)","abertura":"(até 150 palavras, contexto)","divisoes":[{"titulo":"...","versiculos":"...","exposicao":"(2-4 frases com o termo original)","termo_grego":{"palavra":"...","translit":"...","strong":"G____ ou H____","classe":"Verbo/Substantivo/Adjetivo","definicao":"(1 frase)","nota":"(1 frase)"},"leitura":"(2-3 parágrafos curtos, tom de ensaio contínuo, sem marcadores orais)","pulpito":"(tópicos objetivos e frases de impacto, pode incluir (pausa) como âncora de oratória)"}],"conclusao":{"texto":"(até 150 palavras)","leitura":"(1 parágrafo)","pulpito":"(tópicos/frases de impacto)"},"apelo_final":"(1 frase de impacto, pergunta ou desafio pastoral)"}
-Se não houver termo grego/hebraico relevante numa divisão, use "termo_grego":null. IMPORTANTE: o array "divisoes" deve conter todas as divisões prometidas, cada uma com todos os campos preenchidos — resposta incompleta é pior que resposta mais curta em cada campo.
+{"titulo":"...","citacao_biblica_curta":"livro capítulo:versículos","proposicao":"(1 frase completa)","abertura":"(até 300 palavras, contexto)","divisoes":[{"titulo":"...","versiculos":"...","exposicao":"(1-2 parágrafos desenvolvidos, com o termo original)","termo_grego":{"palavra":"...","translit":"...","strong":"G____ ou H____","classe":"Verbo/Substantivo/Adjetivo","definicao":"(1 frase)","nota":"(1-2 frases)"},"leitura":"(3-4 parágrafos bem desenvolvidos, tom de ensaio contínuo, sem marcadores orais)","pulpito":"(tópicos objetivos e frases de impacto, pode incluir (pausa) como âncora de oratória)"}],"conclusao":{"texto":"(até 300 palavras)","leitura":"(1-2 parágrafos)","pulpito":"(tópicos/frases de impacto)"},"apelo_final":"(1 frase de impacto, pergunta ou desafio pastoral)"}
+Se não houver termo grego/hebraico relevante numa divisão, use "termo_grego":null. IMPORTANTE: o array "divisoes" deve conter todas as divisões prometidas, cada uma completa e desenvolvida — uma resposta rasa é pior que uma resposta mais longa e bem trabalhada em cada campo.
 
 Transcrição bruta:
 """
-${raw.slice(0, 6000)}
+${raw.slice(0, 30000)}
 """`;
 
       const apiKey = await ensureGeminiKey();
@@ -1997,8 +1997,8 @@ ${raw.slice(0, 6000)}
           body: JSON.stringify({
             contents: [{ role: "user", parts: [{ text: prompt }] }],
             generationConfig: {
-              maxOutputTokens: 8192,
-              thinkingConfig: { thinkingLevel: "low" }
+              maxOutputTokens: 16000,
+              thinkingConfig: { thinkingLevel: "high" }
             }
           })
         }
