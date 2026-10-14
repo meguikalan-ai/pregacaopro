@@ -1960,6 +1960,16 @@
     renderSermon(document.body.getAttribute('data-mode') || 'exegetico');
   }
 
+    // Repete a chamada à IA quando o Gemini avisa de sobrecarga (503) ou limite (429)
+  async function fetchComRetry(url, options){
+    let resp;
+    for(let tentativa = 0; tentativa < 4; tentativa++){
+      resp = await fetch(url, options);
+      if((resp.status !== 503 && resp.status !== 429) || tentativa === 3) return resp;
+      await new Promise(r => setTimeout(r, 4000 * (tentativa + 1)));
+    }
+    return resp;
+  }
   async function processSermon(){
     const raw = sermonInput.value.trim();
     inputError.classList.remove('show', 'notice');
@@ -2006,7 +2016,7 @@ ${raw.slice(0, 30000)}
         throw new Error('Sem chave de API do Gemini configurada.');
       }
 
-      const response = await fetch(
+      const response = await fetchComRetry(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
         {
           method: "POST",
