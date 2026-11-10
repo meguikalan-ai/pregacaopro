@@ -1994,6 +1994,24 @@
     return 'https://www.youtube.com/watch?v=' + id;
   }
 
+  // Lê o JSON do sermão a partir do texto devolvido pelo Gemini. Aceita resposta
+  // com cercas de markdown ou texto antes/depois do JSON. Devolve null se não der.
+  function extrairJsonSermao(texto){
+    const t = String(texto || '').replace(/```json/gi, '').replace(/```/g, '').trim();
+    if(!t) return null;
+    const tentativas = [t];
+    const ini = t.indexOf('{');
+    const fim = t.lastIndexOf('}');
+    if(ini !== -1 && fim > ini) tentativas.push(t.slice(ini, fim + 1));
+    for(const s of tentativas){
+      try{
+        const obj = JSON.parse(s);
+        if(obj && typeof obj === 'object' && !Array.isArray(obj)) return obj;
+      }catch(e){ /* tenta a próxima forma */ }
+    }
+    return null;
+  }
+
   // Traduz erros comuns da API em mensagens claras para quem está usando o app
   function mensagemErroVideo(msg){
     const m = String(msg || '');
@@ -2075,7 +2093,8 @@ ${raw.slice(0, 30000)}
           body: JSON.stringify({
             contents: [{ role: "user", parts: partesPedido }],
             generationConfig: {
-              maxOutputTokens: 16000,
+              maxOutputTokens: 40000,
+              responseMimeType: "application/json",
               thinkingConfig: { thinkingLevel: "low" }
             }
           })
@@ -2110,10 +2129,24 @@ ${raw.slice(0, 30000)}
       }
 
       const dataResp = await response.json();
-      const parts = (dataResp.candidates && dataResp.candidates[0] && dataResp.candidates[0].content && dataResp.candidates[0].content.parts) || [];
+      const cand = (dataResp.candidates && dataResp.candidates[0]) || null;
+      const parts = (cand && cand.content && cand.content.parts) || [];
       const textOut = parts.map(p => p.text || '').join('');
-      const clean = textOut.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(clean);
+      const motivoFim = (cand && cand.finishReason) || '';
+      const bloqueio = (dataResp.promptFeedback && dataResp.promptFeedback.blockReason) || '';
+      const parsed = extrairJsonSermao(textOut);
+      if(!parsed){
+        // Guarda o que veio no console (F12) para diagnóstico e explica o motivo na tela
+        console.error('Gemini: resposta não pôde ser lida como JSON', { finishReason: motivoFim, blockReason: bloqueio, tamanho: textOut.length, inicio: textOut.slice(0, 300), fim: textOut.slice(-300) });
+        const erro = new Error(
+          bloqueio ? ('O pedido foi bloqueado pelo Gemini (' + bloqueio + ').')
+          : !textOut.trim() ? ('O Gemini não devolveu texto' + (motivoFim ? ' (motivo: ' + motivoFim + ')' : '') + '.')
+          : motivoFim === 'MAX_TOKENS' ? 'A resposta do Gemini foi cortada por atingir o limite de tamanho (MAX_TOKENS).'
+          : ('A resposta do Gemini não veio em formato válido' + (motivoFim ? ' (motivo: ' + motivoFim + ')' : '') + '.')
+        );
+        erro.respostaInvalida = true;
+        throw erro;
+      }
 
       await applyProcessedData(parsed, raw);
       closeInputModal();
@@ -2123,9 +2156,9 @@ ${raw.slice(0, 30000)}
       // (o "texto" seria só o endereço), então mostramos o erro e mantemos o
       // sermão atual intacto.
       if(videoUrl){
-        const jsonQuebrado = err instanceof SyntaxError;
-        inputError.textContent = jsonQuebrado
-          ? 'O Gemini respondeu, mas a resposta veio incompleta (provavelmente por causa do tamanho do vídeo). Tente de novo ou cole a transcrição em texto.'
+        console.error('Erro ao processar o vídeo:', err);
+        inputError.textContent = (err && err.respostaInvalida)
+          ? err.message + ' Tente de novo; se repetir, cole a transcrição em texto.'
           : 'Não foi possível processar o vídeo: ' + mensagemErroVideo(err && err.message);
         inputError.classList.add('show');
         return;
