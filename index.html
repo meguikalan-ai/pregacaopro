@@ -720,8 +720,8 @@
         <div class="input-modal-title">Inserir / Editar Sermão</div>
         <button class="lex-modal-close" id="inputClose">✕</button>
       </div>
-      <div class="input-hint">Cole abaixo o texto bruto do seu sermão. Ao processar, o app usa o Gemini para gerar automaticamente as versões Exegética, de Leitura e de Púlpito (na primeira vez, vai pedir sua chave de API do Gemini). Se a IA não responder, uma estrutura básica é gerada mesmo assim.</div>
-      <textarea id="sermonInput" placeholder="Cole aqui a transcrição ou o texto do seu sermão..."></textarea>
+      <div class="input-hint">Cole abaixo o <strong>link do YouTube</strong> da pregação (o vídeo precisa ser público) ou o texto bruto do sermão. Ao processar, o app usa o Gemini para gerar automaticamente as versões Exegética, de Leitura e de Púlpito (na primeira vez, vai pedir sua chave de API do Gemini). Com um link, o Gemini assiste ao vídeo e pode levar alguns minutos. Com texto colado, se a IA não responder, uma estrutura básica é gerada mesmo assim.</div>
+      <textarea id="sermonInput" placeholder="Cole aqui o link do YouTube ou o texto do seu sermão..."></textarea>
       <div class="input-error" id="inputError"></div>
       <div class="input-actions">
         <div class="input-spinner" id="inputSpinner"><span class="spin"></span> Processando sermão...</div>
@@ -1970,22 +1970,66 @@
     }
     return resp;
   }
+  // Reconhece um link do YouTube (watch, live, youtu.be, shorts, embed) e devolve
+  // o endereço no formato padrão (watch?v=ID) que o Gemini aceita. Se o texto não
+  // for apenas um link do YouTube, devolve null (e o app trata como texto bruto).
+  function parseYouTubeUrl(texto){
+    const t = (texto || '').trim();
+    if(!t || /\s/.test(t)) return null; // link puro: sem espaços nem quebras de linha
+    let u;
+    try{ u = new URL(/^https?:\/\//i.test(t) ? t : 'https://' + t); }catch(e){ return null; }
+    const host = u.hostname.toLowerCase().replace(/^(www|m|music)\./, '');
+    let id = null;
+    if(host === 'youtu.be'){
+      id = u.pathname.split('/')[1];
+    }else if(host === 'youtube.com' || host === 'youtube-nocookie.com'){
+      if(u.pathname === '/watch'){
+        id = u.searchParams.get('v');
+      }else{
+        const m = u.pathname.match(/^\/(?:live|shorts|embed|v)\/([^/?#]+)/);
+        if(m) id = m[1];
+      }
+    }
+    if(!id || !/^[A-Za-z0-9_-]{6,}$/.test(id)) return null;
+    return 'https://www.youtube.com/watch?v=' + id;
+  }
+
+  // Traduz erros comuns da API em mensagens claras para quem está usando o app
+  function mensagemErroVideo(msg){
+    const m = String(msg || '');
+    if(/quota|rate|429|resource.?exhausted/i.test(m)){
+      return 'O limite de uso do Gemini foi atingido (o plano gratuito aceita até 8 horas de vídeo do YouTube por dia). Tente de novo mais tarde.';
+    }
+    if(/private|unlisted|not (?:found|available)|unavailable|permission|access/i.test(m)){
+      return 'O Gemini não conseguiu acessar o vídeo. Confirme que ele é público (vídeos privados ou não listados não funcionam) e que a transmissão ao vivo já terminou.';
+    }
+    if(/token|too long|exceed|context/i.test(m)){
+      return 'O vídeo é longo demais para ser processado de uma vez (o limite é de cerca de 3 horas).';
+    }
+    return m;
+  }
+
   async function processSermon(){
     const raw = sermonInput.value.trim();
     inputError.classList.remove('show', 'notice');
     inputError.textContent = '';
 
     if(!raw){
-      inputError.textContent = 'Cole o texto do sermão antes de processar.';
+      inputError.textContent = 'Cole o link do YouTube ou o texto do sermão antes de processar.';
       inputError.classList.add('show');
       return;
     }
+
+    const videoUrl = parseYouTubeUrl(raw);
 
     processBtn.disabled = true;
     inputSpinner.classList.add('show');
 
     try{
-      const prompt = `Você é um homileta e exegeta especialista. Seu trabalho é receber uma transcrição bruta (YouTube/áudio) e atuar como um filtro inteligente, sintetizando e lapidando o conteúdo em uma versão AMPLIADA e aprofundada — não um resumo raso.
+      const fonteDescricao = videoUrl
+        ? 'assistir ao vídeo anexo (uma pregação ou culto no YouTube) e ouvir o áudio'
+        : 'receber uma transcrição bruta (YouTube/áudio)';
+      const prompt = `Você é um homileta e exegeta especialista. Seu trabalho é ${fonteDescricao} e atuar como um filtro inteligente, sintetizando e lapidando o conteúdo em uma versão AMPLIADA e aprofundada — não um resumo raso.
 Sua resposta DEVE ser estritamente um JSON válido, completo e bem formado (todas as chaves fechadas), sem markdown, sem crases, sem texto antes ou depois.
 
 Diretrizes de Síntese e Lapidação:
@@ -2006,15 +2050,22 @@ Formato JSON exato a preencher (respeite todas as chaves):
 {"titulo":"...","citacao_biblica_curta":"livro capítulo:versículos","proposicao":"(1 frase completa)","abertura":"(até 300 palavras, contexto)","divisoes":[{"titulo":"...","versiculos":"...","exposicao":"(1-2 parágrafos desenvolvidos, com o termo original)","termo_grego":{"palavra":"...","translit":"...","strong":"G____ ou H____","classe":"Verbo/Substantivo/Adjetivo","definicao":"(1 frase)","nota":"(1-2 frases)"},"leitura":"(3-4 parágrafos bem desenvolvidos, tom de ensaio contínuo, sem marcadores orais)","pulpito":"(tópicos objetivos e frases de impacto, pode incluir (pausa) como âncora de oratória)"}],"conclusao":{"texto":"(até 300 palavras)","leitura":"(1-2 parágrafos)","pulpito":"(tópicos/frases de impacto)"},"apelo_final":"(1 frase de impacto, pergunta ou desafio pastoral)"}
 Se não houver termo grego/hebraico relevante numa divisão, use "termo_grego":null. IMPORTANTE: o array "divisoes" deve conter todas as divisões prometidas, cada uma completa e desenvolvida — uma resposta rasa é pior que uma resposta mais longa e bem trabalhada em cada campo.
 
-Transcrição bruta:
+${videoUrl
+  ? 'Fonte: o vídeo anexo. Se for um culto completo, concentre-se apenas na pregação principal (ignore louvor, avisos, ofertas, oração e momentos fora da exposição). Baseie-se somente no que o pregador de fato diz no vídeo; não invente conteúdo que não esteja nele.'
+  : `Transcrição bruta:
 """
 ${raw.slice(0, 30000)}
-"""`;
+"""`}`;
 
       const apiKey = await ensureGeminiKey();
       if(!apiKey){
         throw new Error('Sem chave de API do Gemini configurada.');
       }
+
+      // Com link do YouTube, o vídeo vai antes do texto do prompt (recomendação da documentação do Gemini)
+      const partesPedido = videoUrl
+        ? [{ file_data: { file_uri: videoUrl } }, { text: prompt }]
+        : [{ text: prompt }];
 
       const response = await fetchComRetry(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${encodeURIComponent(apiKey)}`,
@@ -2022,7 +2073,7 @@ ${raw.slice(0, 30000)}
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            contents: [{ role: "user", parts: partesPedido }],
             generationConfig: {
               maxOutputTokens: 16000,
               thinkingConfig: { thinkingLevel: "low" }
@@ -2046,9 +2097,11 @@ ${raw.slice(0, 30000)}
         // um 400/404 por modelo errado, request malformada etc. não significa
         // chave inválida, e apagar por engano gera o ciclo de pedir de novo
         // a cada tentativa mesmo com a chave certa.
+        // (Com link do YouTube, PERMISSION_DENIED pode ser um vídeo inacessível,
+        // e não uma chave ruim — por isso só a mensagem explícita de chave vale.)
         const isAuthProblem =
           errStatus === 'UNAUTHENTICATED' ||
-          errStatus === 'PERMISSION_DENIED' ||
+          (errStatus === 'PERMISSION_DENIED' && !videoUrl) ||
           /api key not valid|api_key_invalid/i.test(errMsg);
         if(isAuthProblem){
           await clearGeminiKey();
@@ -2066,6 +2119,17 @@ ${raw.slice(0, 30000)}
       closeInputModal();
 
     }catch(err){
+      // Com link do YouTube não existe texto para montar uma estrutura básica
+      // (o "texto" seria só o endereço), então mostramos o erro e mantemos o
+      // sermão atual intacto.
+      if(videoUrl){
+        const jsonQuebrado = err instanceof SyntaxError;
+        inputError.textContent = jsonQuebrado
+          ? 'O Gemini respondeu, mas a resposta veio incompleta (provavelmente por causa do tamanho do vídeo). Tente de novo ou cole a transcrição em texto.'
+          : 'Não foi possível processar o vídeo: ' + mensagemErroVideo(err && err.message);
+        inputError.classList.add('show');
+        return;
+      }
       // A API falhou (rede, chave ausente/inválida, formato de resposta, JSON
       // inválido etc.) — em vez de travar no erro, gera uma estrutura básica
       // a partir do próprio texto colado, para que o sermão carregue nos 3 modos.
