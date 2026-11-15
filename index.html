@@ -1326,6 +1326,16 @@
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  // Divide um texto longo em parágrafos (separados por linha em branco ou quebra de linha)
+  // e devolve cada um em seu próprio <p>. 'tail' é HTML opcional (ex.: botão do termo
+  // original) colocado no fim do último parágrafo.
+  function paras(texto, tail, cls){
+    const c = cls || 'body-text';
+    const partes = String(texto || '').split(/\n+/).map(x => x.trim()).filter(Boolean);
+    if(!partes.length) return tail ? `<p class="${c}">${tail}</p>` : '';
+    return partes.map((x, i) => `<p class="${c}">${esc(x)}${(i === partes.length - 1 && tail) ? tail : ''}</p>`).join('');
+  }
+
   function getContent(mode){
     return (activeSermon === 'custom' && customContent) ? customContent[mode] : EXAMPLE_CONTENT[mode];
   }
@@ -1527,7 +1537,7 @@
   // Constrói {exegetico, leitura, pulpito, toc, titulo, citacao, lexEntries}
   // a partir do JSON compacto retornado pela API.
   function buildContentFromData(data){
-    const divisoesRaw = Array.isArray(data.divisoes) ? data.divisoes.slice(0, 4) : [];
+    const divisoesRaw = Array.isArray(data.divisoes) ? data.divisoes.slice(0, 5) : [];
     const lexEntries = {};
 
     const divisoes = divisoesRaw.map((d, i) => {
@@ -1556,7 +1566,7 @@
       <div class="division-card" id="nav-abertura">
         <div class="division-head"><div class="division-num alt">A</div><h2 class="division-title">Abertura</h2></div>
         <hr class="card-rule">
-        <p class="body-text">${esc(data.abertura)}</p>
+        ${paras(data.abertura)}
       </div>
       <div class="section-header" id="nav-desenvolvimento"><span class="flame">🔥</span><span class="label">Desenvolvimento Homilético</span></div>
       <hr class="section-rule">
@@ -1565,13 +1575,15 @@
           <div class="division-head"><div class="division-num">${i + 1}</div><h2 class="division-title">${esc(d.tituloSafe)}${d.versiculos ? ' (' + esc(d.versiculos) + ')' : ''}</h2></div>
           <hr class="card-rule">
           <div class="exposicao-label">Exposição do Texto:</div>
-          <p class="body-text">${esc(d.exposicao)}${d.chipHtml}</p>
+          ${paras(d.exposicao, d.chipHtml)}
+          ${d.ilustracao ? `<div class="ilustracao-box"><span class="tag-label">Ilustração</span>${paras(d.ilustracao)}</div>` : ''}
+          ${d.aplicacao ? `<div class="apelo-box"><span class="tag-label">Aplicação para hoje</span>${paras(d.aplicacao)}</div>` : ''}
         </div>
       `).join('')}
       <div class="division-card" id="nav-conclusao">
         <div class="division-head"><div class="division-num alt">C</div><h2 class="division-title">Conclusão</h2></div>
         <hr class="card-rule">
-        <p class="body-text">${esc(data.conclusao && data.conclusao.texto)}</p>
+        ${paras(data.conclusao && data.conclusao.texto)}
       </div>
       <div class="division-card" id="nav-final">
         <div class="division-head"><div class="division-num alt">P</div><h2 class="division-title">Palavra Final</h2></div>
@@ -1582,11 +1594,11 @@
 
     const leitura = `
       <p class="essay-open">${esc(data.proposicao)}</p>
-      <div class="essay-block" id="nav-abertura"><p class="body-text">${esc(data.abertura)}</p></div>
+      <div class="essay-block" id="nav-abertura">${paras(data.abertura)}</div>
       <div class="essay-divider">· · ·</div>
-      ${divisoes.map((d, i) => `<div class="essay-block" id="nav-div${i + 1}"><p class="body-text">${esc(d.leitura)}</p></div>${i < divisoes.length - 1 ? '<div class="essay-divider">· · ·</div>' : ''}`).join('')}
+      ${divisoes.map((d, i) => `<div class="essay-block" id="nav-div${i + 1}">${paras(d.leitura)}</div>${i < divisoes.length - 1 ? '<div class="essay-divider">· · ·</div>' : ''}`).join('')}
       <div class="essay-divider">· · ·</div>
-      <div class="essay-block" id="nav-conclusao"><p class="body-text">${esc(data.conclusao && data.conclusao.leitura)}</p></div>
+      <div class="essay-block" id="nav-conclusao">${paras(data.conclusao && data.conclusao.leitura)}</div>
       <div class="essay-block" id="nav-final"><p class="closing-q">${esc(data.apelo_final)}</p></div>
     `;
 
@@ -1594,7 +1606,7 @@
       <div class="division-card" id="nav-abertura">
         <div class="division-head"><div class="division-num alt">A</div><h2 class="division-title">Abertura</h2></div>
         <hr class="card-rule">
-        <p class="body-text">${esc(data.abertura)} <span class="pause">(pausa)</span></p>
+        ${paras(data.abertura, ' <span class="pause">(pausa)</span>')}
       </div>
       <div class="section-header" id="nav-desenvolvimento"><span class="flame">🔥</span><span class="label">Desenvolvimento</span></div>
       <hr class="section-rule">
@@ -1602,13 +1614,13 @@
         <div class="division-card" id="nav-div${i + 1}">
           <div class="division-head"><div class="division-num">${i + 1}</div><h2 class="division-title">${esc(d.tituloSafe)}</h2></div>
           <hr class="card-rule">
-          <p class="body-text">${esc(d.pulpito)}</p>
+          ${paras(d.pulpito)}
         </div>
       `).join('')}
       <div class="division-card" id="nav-conclusao">
         <div class="division-head"><div class="division-num alt">C</div><h2 class="division-title">Conclusão</h2></div>
         <hr class="card-rule">
-        <div class="apelo-box"><span class="tag-label">Apelo</span><p class="body-text" style="margin-bottom:0;">${esc(data.conclusao && data.conclusao.pulpito)}</p></div>
+        <div class="apelo-box"><span class="tag-label">Apelo</span>${paras(data.conclusao && data.conclusao.pulpito)}</div>
       </div>
       <div class="division-card" id="nav-final">
         <div class="division-head"><div class="division-num alt">P</div><h2 class="division-title">Palavra Final</h2></div>
@@ -2047,26 +2059,31 @@
       const fonteDescricao = videoUrl
         ? 'assistir ao vídeo anexo (uma pregação ou culto no YouTube) e ouvir o áudio'
         : 'receber uma transcrição bruta (YouTube/áudio)';
-      const prompt = `Você é um homileta e exegeta especialista. Seu trabalho é ${fonteDescricao} e atuar como um filtro inteligente, sintetizando e lapidando o conteúdo em uma versão AMPLIADA e aprofundada — não um resumo raso.
-Sua resposta DEVE ser estritamente um JSON válido, completo e bem formado (todas as chaves fechadas), sem markdown, sem crases, sem texto antes ou depois.
+      const prompt = `Você é um homileta e exegeta experiente, de tradição batista histórica (fidelidade às Escrituras, salvação pela graça mediante a fé, centralidade de Cristo e do Evangelho). Seu trabalho é ${fonteDescricao} e transformar o conteúdo em um sermão COMPLETO e aprofundado, pregável em cerca de 30 minutos (aproximadamente 3.000 a 3.500 palavras de fala) — nunca um resumo.
+Sua resposta DEVE ser estritamente um JSON válido, completo e bem formado (todas as chaves fechadas), sem markdown, sem crases, sem texto antes ou depois. Dentro dos textos, separe os parágrafos com uma linha em branco entre eles.
 
-Diretrizes de Síntese e Lapidação:
-1. DEPURAR: Ignore completamente marcadores de tempo, ruídos, saudações e dinâmicas de palco.
-2. PROFUNDIDADE ACIMA DE TUDO: identifique de 3 a 5 divisões reais na estrutura do sermão (introdução, desenvolvimento, conclusão) e desenvolva TODAS elas por completo, com profundidade exegética e homilética real. Nunca pare no meio nem omita uma divisão. Prefira aprofundar cada divisão a resumi-la.
-3. AMPLIAR, NÃO RESUMIR: escreva de forma rica e substancial, desenvolvendo os argumentos, ilustrações e aplicações presentes na transcrição bruta — e, quando fizer sentido teologicamente, complemente com contexto histórico, cultural ou exegético relevante ao texto bíblico, sempre fiel à mensagem original do pregador.
-4. EXEGESE: mapeie o texto bíblico principal e identifique 1 termo-chave original (Grego/Hebraico) por divisão, com código de Strong, explicando seu significado e relevância para o ponto.
-5. ESTRUTURA DOS MODOS:
-   - Exegético: análise aprofundada de 1-2 parágrafos por divisão, com o termo no idioma original e sua aplicação exegética.
-   - Leitura: texto fluido e completo, em 3-4 parágrafos bem desenvolvidos por divisão.
-   - Púlpito: tópicos objetivos, frases de impacto e âncoras para oratória (ex: "(pausa)"), com espaço suficiente para uma exposição real ao vivo.
-6. LIMITES DE TAMANHO (amplos — use o espaço para aprofundar, não para economizar):
-   - Título e Proposição: 1 frase, mas completa e substancial.
-   - Abertura e Conclusão: até 300 palavras cada, desenvolvendo bem o contexto e o fechamento.
-   - Divisões: 3 a 5 divisões, todas completas e desenvolvidas em profundidade.
+Diretrizes:
+1. DEPURAR: ignore marcadores de tempo, ruídos, saudações e dinâmicas de palco.
+2. ESTRUTURA: identifique de 3 a 4 divisões reais na pregação e desenvolva TODAS por completo, uma a uma. Nunca pare no meio nem omita uma divisão.
+3. FIDELIDADE: parta do que o pregador disse e preserve sua mensagem e sua posição teológica. Você pode e deve ampliar com contexto histórico-cultural, passagens paralelas e aplicações, sem contradizer o pregador.
+4. EXEGESE: dê o contexto histórico e literário do texto, mostre o fio do argumento e traga 1 termo-chave original (Grego/Hebraico) por divisão, com código de Strong. Interprete a Escritura com a Escritura: cite 2 a 3 passagens paralelas (com referência) por divisão. Seja prudente com afirmações gramaticais debatidas entre os estudiosos (por exemplo, não afirme que um imperativo presente com negativa sempre significa parar uma ação já em curso); quando houver dúvida, diga com cautela.
+5. APLICAÇÃO PARA OS DIAS DE HOJE: cada divisão deve ter aplicações concretas e específicas para o cotidiano do ouvinte brasileiro atual (por exemplo: excesso de notícias e redes sociais, pressão financeira, família, trabalho, saúde emocional, solidão, vida em comunidade), sem modismos e sem política partidária. As aplicações devem apontar para Cristo e o Evangelho, e não cair em moralismo.
+6. HONESTIDADE: não invente estatísticas, pesquisas, notícias, citações de autores nem fatos históricos de que você não tenha certeza. As ilustrações devem ser cenas do cotidiano plausíveis, passagens bíblicas ou episódios conhecidos da história da igreja.
+7. TAMANHOS (são metas reais — preencha cada campo, não economize):
+   - proposicao: 1 frase completa e substancial.
+   - abertura: 350 a 450 palavras (contexto do texto, uma ilustração de entrada e a ponte para o primeiro ponto).
+   - Cada divisão:
+     • exposicao: 250 a 350 palavras, em 2 a 3 parágrafos, incluindo o termo original e as passagens paralelas.
+     • ilustracao: 100 a 150 palavras.
+     • aplicacao: 150 a 250 palavras, com 2 a 3 aplicações práticas (um parágrafo para cada).
+     • leitura: 650 a 800 palavras, em 5 a 7 parágrafos, em texto contínuo e pregável, que reúna exposição, passagens paralelas, ilustração e aplicações, e termine com uma frase de transição para o próximo ponto.
+     • pulpito: roteiro de 6 a 10 linhas curtas, cada uma começando com "• ", e a primeira linha no formato "⏱ ~7 min". Inclua versículo-chave, termo original, ilustração, aplicações e âncoras de oratória como "(pausa)".
+   - conclusao.texto: 300 a 400 palavras; conclusao.leitura: 350 a 450 palavras; conclusao.pulpito: 5 a 8 linhas, cada uma começando com "• ".
+   - apelo_final: 1 a 2 frases de impacto, em forma de pergunta ou desafio pastoral, apontando para Cristo.
 
 Formato JSON exato a preencher (respeite todas as chaves):
-{"titulo":"...","citacao_biblica_curta":"livro capítulo:versículos","proposicao":"(1 frase completa)","abertura":"(até 300 palavras, contexto)","divisoes":[{"titulo":"...","versiculos":"...","exposicao":"(1-2 parágrafos desenvolvidos, com o termo original)","termo_grego":{"palavra":"...","translit":"...","strong":"G____ ou H____","classe":"Verbo/Substantivo/Adjetivo","definicao":"(1 frase)","nota":"(1-2 frases)"},"leitura":"(3-4 parágrafos bem desenvolvidos, tom de ensaio contínuo, sem marcadores orais)","pulpito":"(tópicos objetivos e frases de impacto, pode incluir (pausa) como âncora de oratória)"}],"conclusao":{"texto":"(até 300 palavras)","leitura":"(1-2 parágrafos)","pulpito":"(tópicos/frases de impacto)"},"apelo_final":"(1 frase de impacto, pergunta ou desafio pastoral)"}
-Se não houver termo grego/hebraico relevante numa divisão, use "termo_grego":null. IMPORTANTE: o array "divisoes" deve conter todas as divisões prometidas, cada uma completa e desenvolvida — uma resposta rasa é pior que uma resposta mais longa e bem trabalhada em cada campo.
+{"titulo":"...","citacao_biblica_curta":"livro capítulo:versículos","proposicao":"...","abertura":"...","divisoes":[{"titulo":"...","versiculos":"...","exposicao":"...","termo_grego":{"palavra":"...","translit":"...","strong":"G____ ou H____","classe":"Verbo/Substantivo/Adjetivo","definicao":"(1 frase)","nota":"(1-2 frases)"},"ilustracao":"...","aplicacao":"...","leitura":"...","pulpito":"..."}],"conclusao":{"texto":"...","leitura":"...","pulpito":"..."},"apelo_final":"..."}
+Se não houver termo grego/hebraico relevante numa divisão, use "termo_grego":null. IMPORTANTE: o array "divisoes" deve conter todas as divisões, cada uma completa e com todos os campos preenchidos nos tamanhos pedidos — uma resposta rasa é pior que uma resposta longa e bem trabalhada.
 
 ${videoUrl
   ? 'Fonte: o vídeo anexo. Se for um culto completo, concentre-se apenas na pregação principal (ignore louvor, avisos, ofertas, oração e momentos fora da exposição). Baseie-se somente no que o pregador de fato diz no vídeo; não invente conteúdo que não esteja nele.'
