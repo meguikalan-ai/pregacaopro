@@ -2064,15 +2064,16 @@ Sua resposta DEVE ser estritamente um JSON válido, completo e bem formado (toda
 
 Diretrizes:
 1. DEPURAR: ignore marcadores de tempo, ruídos, saudações e dinâmicas de palco.
-2. ESTRUTURA: identifique de 3 a 4 divisões reais na pregação e desenvolva TODAS por completo, uma a uma. Nunca pare no meio nem omita uma divisão.
+2. ESTRUTURA: o sermão deve ter EXATAMENTE 3 divisões, para facilitar a assimilação pelo ouvinte. Se a pregação tiver 3 pontos, siga-os. Se tiver apenas 2, desenvolva um terceiro ponto a partir do mesmo texto bíblico e da linha de pensamento do pregador, de modo que os três formem uma progressão natural (por exemplo: o que o texto diz, por que isso importa, como viver isso). Se tiver 4 ou mais, agrupe-os em 3. Desenvolva as 3 divisões por completo, uma a uma. Nunca pare no meio nem omita uma divisão.
 3. FIDELIDADE: parta do que o pregador disse e preserve sua mensagem e sua posição teológica. Você pode e deve ampliar com contexto histórico-cultural, passagens paralelas e aplicações, sem contradizer o pregador.
 4. EXEGESE: dê o contexto histórico e literário do texto, mostre o fio do argumento e traga 1 termo-chave original (Grego/Hebraico) por divisão, com código de Strong. Interprete a Escritura com a Escritura: cite 2 a 3 passagens paralelas (com referência) por divisão. Seja prudente com afirmações gramaticais debatidas entre os estudiosos (por exemplo, não afirme que um imperativo presente com negativa sempre significa parar uma ação já em curso); quando houver dúvida, diga com cautela.
 5. APLICAÇÃO PARA OS DIAS DE HOJE: cada divisão deve ter aplicações concretas e específicas para o cotidiano do ouvinte brasileiro atual (por exemplo: excesso de notícias e redes sociais, pressão financeira, família, trabalho, saúde emocional, solidão, vida em comunidade), sem modismos e sem política partidária. As aplicações devem apontar para Cristo e o Evangelho, e não cair em moralismo.
-6. HONESTIDADE: não invente estatísticas, pesquisas, notícias, citações de autores nem fatos históricos de que você não tenha certeza. As ilustrações devem ser cenas do cotidiano plausíveis, passagens bíblicas ou episódios conhecidos da história da igreja.
-7. TAMANHOS (são metas reais — preencha cada campo, não economize):
+6. HONESTIDADE: não invente estatísticas, pesquisas, notícias, citações de autores nem fatos históricos de que você não tenha certeza. NÃO cite nomes de pessoas reais nem casos específicos de notícias (acidentes, crimes, tragédias, celebridades), a menos que o nome e o caso estejam na transcrição ou no vídeo; nesse caso, use apenas o que o pregador disse. As ilustrações devem ser cenas anônimas do cotidiano ("um pai de família...", "uma jovem..."), passagens bíblicas ou episódios muito conhecidos da história da igreja.
+7. IDIOMA: escreva TUDO em português do Brasil. Não misture palavras em inglês; use o grego/hebraico apenas no campo do termo original.
+8. TAMANHOS (são metas reais — preencha cada campo, não economize):
    - proposicao: 1 frase completa e substancial.
    - abertura: 350 a 450 palavras (contexto do texto, uma ilustração de entrada e a ponte para o primeiro ponto).
-   - Cada divisão:
+   - Cada uma das 3 divisões:
      • exposicao: 250 a 350 palavras, em 2 a 3 parágrafos, incluindo o termo original e as passagens paralelas.
      • ilustracao: 100 a 150 palavras.
      • aplicacao: 150 a 250 palavras, com 2 a 3 aplicações práticas (um parágrafo para cada).
@@ -2083,7 +2084,7 @@ Diretrizes:
 
 Formato JSON exato a preencher (respeite todas as chaves):
 {"titulo":"...","citacao_biblica_curta":"livro capítulo:versículos","proposicao":"...","abertura":"...","divisoes":[{"titulo":"...","versiculos":"...","exposicao":"...","termo_grego":{"palavra":"...","translit":"...","strong":"G____ ou H____","classe":"Verbo/Substantivo/Adjetivo","definicao":"(1 frase)","nota":"(1-2 frases)"},"ilustracao":"...","aplicacao":"...","leitura":"...","pulpito":"..."}],"conclusao":{"texto":"...","leitura":"...","pulpito":"..."},"apelo_final":"..."}
-Se não houver termo grego/hebraico relevante numa divisão, use "termo_grego":null. IMPORTANTE: o array "divisoes" deve conter todas as divisões, cada uma completa e com todos os campos preenchidos nos tamanhos pedidos — uma resposta rasa é pior que uma resposta longa e bem trabalhada.
+Se não houver termo grego/hebraico relevante numa divisão, use "termo_grego":null. IMPORTANTE: o array "divisoes" deve conter EXATAMENTE 3 divisões, cada uma completa e com todos os campos preenchidos nos tamanhos pedidos — uma resposta rasa é pior que uma resposta longa e bem trabalhada.
 
 ${videoUrl
   ? 'Fonte: o vídeo anexo. Se for um culto completo, concentre-se apenas na pregação principal (ignore louvor, avisos, ofertas, oração e momentos fora da exposição). Baseie-se somente no que o pregador de fato diz no vídeo; não invente conteúdo que não esteja nele.'
