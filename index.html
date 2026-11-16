@@ -452,6 +452,31 @@
     border:1px solid var(--rule); background: var(--card-bg); color: var(--ink);
   }
 
+  /* ---------- MATERIAIS EXTRAS E EXPORTAÇÃO ---------- */
+  .extras-scroll{ overflow-y:auto; flex:1; padding-right:2px; }
+  .extras-section-title{
+    font-weight:800; font-size:12.5px; letter-spacing:.6px; text-transform:uppercase;
+    color: var(--ink-soft); margin: 18px 0 10px;
+  }
+  .extras-section-title:first-child{ margin-top:4px; }
+  .extra-btn{
+    display:flex; flex-direction:column; align-items:flex-start; text-align:left; width:100%;
+    background: var(--card-bg); color: var(--ink); border:1px solid var(--rule);
+    border-radius:16px; padding:14px 16px; margin-bottom:10px; cursor:pointer; font-family: inherit;
+  }
+  .extra-btn:active{ background: var(--anchor-bg); }
+  .extra-btn strong{ font-size:15px; }
+  .extra-btn span{ font-size:13px; color: var(--ink-soft); margin-top:3px; }
+  .extras-actions{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .extras-actions .btn-secondary, .extras-actions .btn-primary{ flex:1; min-width:100px; }
+  .extras-textarea{
+    width:100%; min-height:300px; resize:vertical; box-sizing:border-box;
+    border-radius:16px; border:1px solid var(--rule); background: var(--card-bg); color: var(--ink);
+    padding:14px 16px; font-family: Georgia, serif; font-size:15.5px; line-height:1.5; margin-bottom:12px;
+  }
+  .extras-carregando{ padding: 40px 10px; display:flex; justify-content:center; }
+  body[data-mode="pulpito"] #extrasBtn{ display:none; }
+
   /* ---------- TOC MODAL ---------- */
   .toc-overlay{
     position: fixed; inset:0; background: rgba(20,18,35,.45);
@@ -720,6 +745,7 @@
       <button data-source="exemplo" class="active">📖 Sermão de Exemplo</button>
       <button data-source="custom" id="customSourceBtn" disabled>✍️ Meu Sermão</button>
       <button id="saveLibraryBtn" disabled title="Salvar este sermão na Biblioteca">💾 Salvar na Biblioteca</button>
+      <button id="extrasBtn" title="Gerar materiais extras e exportar o sermão">📄 Materiais e exportar</button>
     </div>
 
     <h1 class="title" id="mainTitle">Quando o Filho do Homem Vier,<br>Achará Fé na Terra?</h1>
@@ -771,6 +797,53 @@
         <div class="input-spinner" id="inputSpinner"><span class="spin"></span> <span id="spinnerTxt">Processando sermão...</span></div>
         <button class="btn-secondary" id="inputCancel">Cancelar</button>
         <button class="btn-primary" id="processBtn">Processar Sermão</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-overlay" id="extrasOverlay">
+    <div class="input-modal">
+      <div class="input-modal-head">
+        <div class="input-modal-title" id="extrasTitulo">Materiais e exportação</div>
+        <button class="lex-modal-close" id="extrasClose">✕</button>
+      </div>
+      <div class="extras-scroll">
+
+        <div id="extrasMenu">
+          <div class="input-error" id="extrasErro"></div>
+          <div class="extras-section-title">Gerar a partir deste sermão</div>
+          <button class="extra-btn" data-extra="grupos"><strong>Perguntas para Pequenos Grupos</strong><span>Quebra-gelo, perguntas por ponto, desafio da semana e oração</span></button>
+          <button class="extra-btn" data-extra="devocional"><strong>Devocional curto</strong><span>Leitura de 3 minutos para enviar durante a semana</span></button>
+          <button class="extra-btn" data-extra="boletim"><strong>Resumo para o boletim</strong><span>Texto curto com os pontos principais e uma frase para levar para casa</span></button>
+          <button class="extra-btn" data-extra="slides"><strong>Roteiro de slides</strong><span>10 a 14 slides com texto curto e sugestão visual</span></button>
+
+          <div class="extras-section-title">Exportar o manuscrito completo</div>
+          <div class="extras-actions">
+            <button class="btn-secondary" id="expCopiar">Copiar texto</button>
+            <button class="btn-secondary" id="expWord">Baixar Word</button>
+            <button class="btn-secondary" id="expPdf">Imprimir / PDF</button>
+          </div>
+          <div class="input-hint">O manuscrito sai com o texto do modo Leitura (abertura, três pontos, conclusão e palavra final). Para PDF, escolha "Salvar como PDF" na janela de impressão.</div>
+        </div>
+
+        <div id="extrasCarregando" class="extras-carregando" style="display:none;">
+          <div class="input-spinner show"><span class="spin"></span> <span id="extrasSpinnerTxt">Gerando...</span></div>
+        </div>
+
+        <div id="extrasResultado" style="display:none;">
+          <textarea id="extrasTexto" class="extras-textarea"></textarea>
+          <div class="extras-actions">
+            <button class="btn-secondary" id="resCopiar">Copiar</button>
+            <button class="btn-secondary" id="resWord">Baixar Word</button>
+            <button class="btn-secondary" id="resPdf">Imprimir / PDF</button>
+          </div>
+          <div class="extras-actions">
+            <button class="btn-secondary" id="resVoltar">← Voltar</button>
+            <button class="btn-primary" id="resRefazer">Gerar de novo</button>
+          </div>
+          <div class="input-hint">Você pode editar o texto acima antes de copiar ou exportar. Revise antes de usar: é um rascunho feito por IA.</div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -2047,8 +2120,10 @@
 
   // Mostra uma mensagem de andamento ao lado do círculo giratório
   function mostrarStatus(texto){
-    const el = document.getElementById('spinnerTxt');
-    if(el) el.textContent = texto;
+    ['spinnerTxt', 'extrasSpinnerTxt'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.textContent = texto;
+    });
   }
   // Repete a chamada à IA quando o Gemini avisa de sobrecarga (503), limite (429)
   // ou demora (502/504), esperando cada vez mais, até 6 tentativas no total.
@@ -2305,6 +2380,280 @@ ${raw.slice(0, 30000)}
       mostrarStatus('Processando sermão...');
     }
   }
+
+  // =====================================================================
+  //  MATERIAIS EXTRAS (via Gemini) E EXPORTAÇÃO (Word / PDF / copiar)
+  // =====================================================================
+  const extrasOverlay = document.getElementById('extrasOverlay');
+  const extrasMenu = document.getElementById('extrasMenu');
+  const extrasCarregando = document.getElementById('extrasCarregando');
+  const extrasResultado = document.getElementById('extrasResultado');
+  const extrasTexto = document.getElementById('extrasTexto');
+  const extrasErro = document.getElementById('extrasErro');
+  const extrasTitulo = document.getElementById('extrasTitulo');
+  let extraAtual = null;     // { tipo, nome, sermao }
+
+  const EXTRAS = {
+    grupos: {
+      nome: 'Perguntas para Pequenos Grupos',
+      instrucao: 'um roteiro de discussão para PEQUENOS GRUPOS (encontro de 60 a 90 minutos), com estas seções, nesta ordem: QUEBRA-GELO (1 pergunta leve e fácil de responder, ligada ao tema); LEITURA BÍBLICA (a passagem principal e duas de apoio, só as referências); PERGUNTAS SOBRE O TEXTO (organizadas pelos 3 pontos do sermão; para cada ponto, escreva o título do ponto em CAIXA ALTA e depois 2 perguntas de observação ou compreensão do texto e 1 pergunta de aplicação pessoal, todas numeradas); DESAFIO DA SEMANA (1 ação prática simples); MOTIVOS DE ORAÇÃO (3 a 4 sugestões). As perguntas devem ser abertas (que não se respondem com sim ou não), curtas e acolhedoras para quem está começando na fé. Entre 400 e 600 palavras.'
+    },
+    devocional: {
+      nome: 'Devocional curto',
+      instrucao: 'um DEVOCIONAL CURTO de leitura em cerca de 3 minutos (250 a 350 palavras), para enviar por WhatsApp ou e-mail durante a semana, com: TÍTULO (em CAIXA ALTA); a referência do versículo-chave; uma reflexão pastoral e calorosa que resuma o coração do sermão; uma aplicação prática para o dia; e a seção ORAÇÃO (de 3 a 5 linhas). Tom pastoral, simples e encorajador, apontando para Cristo.'
+    },
+    boletim: {
+      nome: 'Resumo para o boletim',
+      instrucao: 'um RESUMO PARA O BOLETIM DA IGREJA com estas seções: TÍTULO DO SERMÃO; TEXTO BÍBLICO (só a referência); RESUMO (100 a 130 palavras, em um parágrafo, para quem não pôde ouvir a mensagem); PONTOS PRINCIPAIS (os 3 pontos, cada um em uma frase curta); PARA LEVAR PARA CASA (uma frase marcante). No total, até 220 palavras, em tom claro e acolhedor.'
+    },
+    slides: {
+      nome: 'Roteiro de slides',
+      instrucao: 'um ROTEIRO DE SLIDES para projetar durante a pregação, com 10 a 14 slides. Para cada slide use este formato: uma linha de título em CAIXA ALTA começando por "SLIDE 1 — " (com o número do slide) seguida de um título curto; depois 1 a 3 linhas de texto muito curtas (no máximo 12 palavras por linha) para aparecer na tela; e por fim uma linha começando por "Sugestão visual:" com uma ideia simples de imagem ou fundo. Inclua: slide de título (com o texto bíblico), slide da proposição central, um slide de abertura, 2 a 3 slides por ponto (título do ponto, referência bíblica com a frase-chave, e a aplicação), slide de conclusão e slide final com o apelo. Para versículos, coloque somente a referência (por exemplo, Marcos 8:34) e deixe o pregador inserir o texto bíblico na versão que preferir.'
+    }
+  };
+  const REGRAS_EXTRAS = 'REGRAS GERAIS: escreva tudo em português do Brasil, em texto simples (sem markdown: nada de asteriscos, #, tabelas ou negrito). Os títulos de seções devem ficar em CAIXA ALTA, sozinhos em uma linha. Não invente fatos, estatísticas, nomes de pessoas reais nem casos de notícias. Cite as passagens bíblicas apenas pela referência; não transcreva versículos. Seja fiel à mensagem do sermão e não acrescente doutrinas que ele não contém.';
+
+  // Converte um trecho de HTML em um elemento solto (para ler o texto dele)
+  function htmlParaElemento(html){
+    const d = document.createElement('div');
+    d.innerHTML = html || '';
+    return d;
+  }
+
+  // Lê o sermão que está na tela (exemplo ou "Meu Sermão") e monta o manuscrito em blocos
+  function lerSermonAtual(){
+    const raiz = htmlParaElemento(getContent('leitura'));
+    const exeg = htmlParaElemento(getContent('exegetico'));
+    const tituloHtml = (document.getElementById('mainTitle').innerHTML || '').replace(/<br\s*\/?>/gi, ' ');
+    const titulo = htmlParaElemento(tituloHtml).textContent.replace(/\s+/g, ' ').trim() || 'Sermão';
+    const citacao = (document.getElementById('mainCitation').textContent || '').trim();
+
+    const titulosPontos = {};
+    exeg.querySelectorAll('[id^="nav-div"]').forEach(card => {
+      const t = card.querySelector('.division-title');
+      if(t) titulosPontos[card.id] = t.textContent.replace(/\s+/g, ' ').trim();
+    });
+
+    const blocos = [];
+    blocos.push(['h1', titulo]);
+    blocos.push(['sub', 'Pregador: Pr. Fernando Veiga' + (citacao ? ' · ' + citacao : '')]);
+    Array.from(raiz.children).forEach(el => {
+      const cls = String(el.className || '');
+      if(/essay-divider/.test(cls)) return;
+      if(/essay-open/.test(cls)){ blocos.push(['quote', el.textContent.trim()]); return; }
+      if(/conferir-box/.test(cls)){
+        blocos.push(['h2', 'Conferir antes de pregar']);
+        el.querySelectorAll('li').forEach(li => blocos.push(['li', li.textContent.trim()]));
+        return;
+      }
+      if(/essay-block/.test(cls)){
+        const id = el.id || '';
+        if(id === 'nav-abertura') blocos.push(['h2', 'Abertura']);
+        else if(/^nav-div\d+$/.test(id)) blocos.push(['h2', titulosPontos[id] || ('Ponto ' + id.replace('nav-div', ''))]);
+        else if(id === 'nav-conclusao') blocos.push(['h2', 'Conclusão']);
+        else if(id === 'nav-final') blocos.push(['h2', 'Palavra Final']);
+        el.querySelectorAll('p').forEach(p => { const t = p.textContent.trim(); if(t) blocos.push(['p', t]); });
+        return;
+      }
+      const t = el.textContent.trim();
+      if(t) blocos.push(['p', t]);
+    });
+    return { titulo, citacao, blocos };
+  }
+
+  function blocosParaHtml(blocos){
+    return blocos.map(([tipo, texto]) => {
+      const e = esc(texto);
+      if(tipo === 'h1') return '<h1>' + e + '</h1>';
+      if(tipo === 'h2') return '<h2>' + e + '</h2>';
+      if(tipo === 'sub') return '<p class="sub">' + e + '</p>';
+      if(tipo === 'quote') return '<p class="quote">' + e + '</p>';
+      if(tipo === 'li') return '<p class="item">• ' + e + '</p>';
+      return '<p>' + e + '</p>';
+    }).join('\n');
+  }
+  function blocosParaTexto(blocos){
+    return blocos.map(([tipo, texto]) => {
+      if(tipo === 'h1' || tipo === 'h2') return texto.toUpperCase();
+      if(tipo === 'li') return '• ' + texto;
+      return texto;
+    }).join('\n\n');
+  }
+  // Texto do sermão entregue à IA nos materiais extras (sem a lista "Conferir antes de pregar")
+  function sermaoParaPrompt(sermao){
+    const out = [];
+    for(const [tipo, texto] of sermao.blocos){
+      if(tipo === 'h2' && texto === 'Conferir antes de pregar') break;
+      out.push(tipo === 'h2' ? ('\n' + texto.toUpperCase()) : texto);
+    }
+    return out.join('\n');
+  }
+  // Transforma o texto simples gerado pela IA em blocos (linha em CAIXA ALTA vira título)
+  function extraParaBlocos(nome, tituloSermao, texto){
+    const blocos = [['h1', nome], ['sub', 'Sermão: ' + tituloSermao]];
+    String(texto || '').split('\n').map(l => l.trim()).filter(Boolean).forEach(l => {
+      const ehTitulo = l.length >= 4 && l.length <= 90 && l === l.toUpperCase() && /[A-ZÀ-Ú]/.test(l);
+      if(ehTitulo) blocos.push(['h2', l]);
+      else if(/^[•\-\*]\s+/.test(l)) blocos.push(['li', l.replace(/^[•\-\*]\s+/, '')]);
+      else blocos.push(['p', l]);
+    });
+    return blocos;
+  }
+
+  const CSS_DOCUMENTO = "body{font-family:Georgia,'Times New Roman',serif;font-size:12.5pt;line-height:1.55;color:#111} h1{font-size:22pt;margin:0 0 4pt} h2{font-size:15pt;margin:18pt 0 6pt} p{margin:0 0 9pt} .sub{color:#555;font-style:italic;margin-bottom:14pt} .quote{font-style:italic;color:#333;margin:10pt 0 14pt} .item{margin:0 0 5pt 14pt}";
+
+  function baixarArquivo(blob, nome){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nome;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
+  // Word: um arquivo .doc em formato de página que o Word, o LibreOffice e o Google Docs abrem
+  function exportarWord(titulo, blocos){
+    const html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>' + esc(titulo) + '</title><style>' + CSS_DOCUMENTO + '</style></head><body>' + blocosParaHtml(blocos) + '</body></html>';
+    baixarArquivo(new Blob(['\ufeff', html], { type: 'application/msword' }), slugify(titulo) + '.doc');
+  }
+  // PDF: abre a janela de impressão com uma página limpa; ali se escolhe "Salvar como PDF"
+  function imprimirPdf(titulo, blocos){
+    const f = document.createElement('iframe');
+    f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+    document.body.appendChild(f);
+    const d = f.contentWindow.document;
+    d.open();
+    d.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>' + esc(titulo) + '</title><style>@page{margin:2cm} ' + CSS_DOCUMENTO + '</style></head><body>' + blocosParaHtml(blocos) + '</body></html>');
+    d.close();
+    const tituloAntigo = document.title;
+    const limpar = () => { document.title = tituloAntigo; setTimeout(() => { if(f.parentNode) f.parentNode.removeChild(f); }, 500); };
+    setTimeout(() => {
+      try{
+        document.title = titulo;
+        f.contentWindow.addEventListener('afterprint', limpar);
+        f.contentWindow.focus();
+        f.contentWindow.print();
+      }catch(e){ limpar(); }
+      setTimeout(limpar, 120000);
+    }, 400);
+  }
+  async function copiarTexto(texto, botao){
+    let ok = false;
+    try{
+      await navigator.clipboard.writeText(texto);
+      ok = true;
+    }catch(e){
+      try{
+        const ta = document.createElement('textarea');
+        ta.value = texto;
+        ta.style.cssText = 'position:fixed;opacity:0;';
+        document.body.appendChild(ta);
+        ta.select();
+        ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+      }catch(e2){ ok = false; }
+    }
+    if(botao){
+      const antes = botao.textContent;
+      botao.textContent = ok ? 'Copiado ✓' : 'Não foi possível copiar';
+      setTimeout(() => { botao.textContent = antes; }, 1800);
+    }
+  }
+
+  // Chamada simples ao Gemini que devolve texto (usada nos materiais extras)
+  async function gerarTextoGemini(pedido){
+    const apiKey = await ensureGeminiKey();
+    if(!apiKey) throw new Error('Sem chave de API do Gemini configurada. Toque no ícone de chave no topo para cadastrar.');
+    const response = await fetchComRetry(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${encodeURIComponent(apiKey)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: pedido }] }],
+          generationConfig: { maxOutputTokens: 8000, thinkingConfig: { thinkingLevel: 'low' } }
+        })
+      }
+    );
+    if(!response.ok){
+      let msg = 'HTTP ' + response.status, status = '';
+      try{
+        const corpo = await response.json();
+        if(corpo && corpo.error){ msg = corpo.error.message || msg; status = corpo.error.status || ''; }
+      }catch(e){ /* corpo do erro não veio em JSON */ }
+      if(status === 'UNAUTHENTICATED' || /api key not valid|api_key_invalid/i.test(msg)) await clearGeminiKey();
+      throw new Error(msg);
+    }
+    const dados = await response.json();
+    const cand = (dados.candidates && dados.candidates[0]) || null;
+    const partes = (cand && cand.content && cand.content.parts) || [];
+    const texto = partes.map(p => p.text || '').join('').trim();
+    if(!texto){
+      const bloqueio = (dados.promptFeedback && dados.promptFeedback.blockReason) || '';
+      throw new Error(bloqueio ? ('O pedido foi bloqueado pelo Gemini (' + bloqueio + ').') : 'O Gemini não devolveu texto.');
+    }
+    return texto;
+  }
+  function mensagemErroGemini(msg){
+    const m = String(msg || '');
+    if(/high demand|overload|503|unavailable/i.test(m)) return 'O Gemini está sobrecarregado agora. Tente de novo em alguns minutos.';
+    if(/quota|rate|429|resource.?exhausted/i.test(m)) return 'O limite de uso do Gemini foi atingido. Tente de novo mais tarde.';
+    return m;
+  }
+
+  function mostrarVistaExtras(vista){
+    extrasMenu.style.display = vista === 'menu' ? '' : 'none';
+    extrasCarregando.style.display = vista === 'carregando' ? '' : 'none';
+    extrasResultado.style.display = vista === 'resultado' ? '' : 'none';
+    extrasTitulo.textContent = (vista === 'resultado' && extraAtual) ? extraAtual.nome : 'Materiais e exportação';
+  }
+  async function gerarExtra(tipo){
+    const cfg = EXTRAS[tipo];
+    if(!cfg) return;
+    extrasErro.classList.remove('show');
+    extrasErro.textContent = '';
+    mostrarVistaExtras('carregando');
+    mostrarStatus('Gerando: ' + cfg.nome + '...');
+    try{
+      const sermao = lerSermonAtual();
+      const pedido = 'Você é um pastor e redator ministerial de tradição batista histórica (fidelidade às Escrituras, salvação pela graça mediante a fé, centralidade de Cristo e do Evangelho). Com base no sermão abaixo, escreva ' + cfg.instrucao + '\n\n' + REGRAS_EXTRAS + '\n\nSERMÃO (entre as linhas de traços):\n-----\n' + sermaoParaPrompt(sermao).slice(0, 24000) + '\n-----';
+      const texto = await gerarTextoGemini(pedido);
+      extraAtual = { tipo: tipo, nome: cfg.nome, sermao: sermao.titulo };
+      extrasTexto.value = texto;
+      mostrarVistaExtras('resultado');
+    }catch(err){
+      console.error('Erro ao gerar material extra:', err);
+      mostrarVistaExtras('menu');
+      extrasErro.textContent = 'Não foi possível gerar agora: ' + mensagemErroGemini(err && err.message);
+      extrasErro.classList.add('show');
+    }finally{
+      mostrarStatus('Processando sermão...');
+    }
+  }
+
+  document.getElementById('extrasBtn').addEventListener('click', () => {
+    extrasErro.classList.remove('show');
+    extrasErro.textContent = '';
+    mostrarVistaExtras('menu');
+    extrasOverlay.classList.add('open');
+  });
+  document.getElementById('extrasClose').addEventListener('click', () => extrasOverlay.classList.remove('open'));
+  document.querySelectorAll('.extra-btn').forEach(b => {
+    b.addEventListener('click', () => gerarExtra(b.getAttribute('data-extra')));
+  });
+  // Exportar o manuscrito completo
+  document.getElementById('expCopiar').addEventListener('click', (e) => copiarTexto(blocosParaTexto(lerSermonAtual().blocos), e.currentTarget));
+  document.getElementById('expWord').addEventListener('click', () => { const sm = lerSermonAtual(); exportarWord(sm.titulo, sm.blocos); });
+  document.getElementById('expPdf').addEventListener('click', () => { const sm = lerSermonAtual(); imprimirPdf(sm.titulo, sm.blocos); });
+  // Resultado de um material extra
+  function blocosDoResultado(){ return extraParaBlocos(extraAtual.nome, extraAtual.sermao, extrasTexto.value); }
+  document.getElementById('resCopiar').addEventListener('click', (e) => copiarTexto(extrasTexto.value, e.currentTarget));
+  document.getElementById('resWord').addEventListener('click', () => { if(extraAtual) exportarWord(extraAtual.nome + ' - ' + extraAtual.sermao, blocosDoResultado()); });
+  document.getElementById('resPdf').addEventListener('click', () => { if(extraAtual) imprimirPdf(extraAtual.nome + ' - ' + extraAtual.sermao, blocosDoResultado()); });
+  document.getElementById('resVoltar').addEventListener('click', () => mostrarVistaExtras('menu'));
+  document.getElementById('resRefazer').addEventListener('click', () => { if(extraAtual) gerarExtra(extraAtual.tipo); });
+
   processBtn.addEventListener('click', processSermon);
 
   // Lembra a última duração e o último público escolhidos
