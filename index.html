@@ -477,6 +477,39 @@
   .extras-carregando{ padding: 40px 10px; display:flex; justify-content:center; }
   body[data-mode="pulpito"] #extrasBtn{ display:none; }
 
+  /* ---------- EDITAR O SERMÃO NA TELA ---------- */
+  body.editando [contenteditable="true"]{
+    outline: 1.5px dashed var(--pill-text); outline-offset: 3px; border-radius: 6px;
+    background: rgba(70,56,214,.06); caret-color: var(--pill-text);
+    -webkit-user-select: text; user-select: text;
+  }
+  body.editando [contenteditable="true"]:focus{ outline-style: solid; background: rgba(70,56,214,.11); }
+  body.editando .topbar, body.editando .source-switch{ pointer-events:none; opacity:.5; }
+  body.editando #sermonBody{ padding-bottom: 120px; }
+  .edit-bar{
+    position: fixed; left:0; right:0; bottom:0; z-index: 90;
+    background: var(--page-bg); color: var(--ink); border-top: 1px solid var(--rule);
+    padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+    display:none; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    box-shadow: 0 -6px 18px rgba(0,0,0,.14);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  body.editando .edit-bar{ display:flex; }
+  .edit-bar-txt{ flex:1; min-width:200px; font-size:13px; line-height:1.4; color: var(--ink-soft); }
+  .edit-bar-txt strong{ color: var(--ink); }
+  .edit-bar-btns{ display:flex; gap:8px; }
+  .toast{
+    position: fixed; left:50%; transform: translateX(-50%); bottom: 96px; z-index: 300;
+    background:#222; color:#fff; padding:10px 18px; border-radius:999px; font-size:14px; font-weight:600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    box-shadow: 0 6px 18px rgba(0,0,0,.3);
+  }
+  .input-options input[type="text"]{
+    font-family: inherit; font-size:14.5px; padding:10px 12px; border-radius:12px;
+    border:1px solid var(--rule); background: var(--card-bg); color: var(--ink);
+  }
+  .input-options label.check{ flex-direction:row; align-items:center; gap:8px; font-weight:600; }
+
   /* ---------- TOC MODAL ---------- */
   .toc-overlay{
     position: fixed; inset:0; background: rgba(20,18,35,.45);
@@ -746,6 +779,8 @@
       <button data-source="custom" id="customSourceBtn" disabled>✍️ Meu Sermão</button>
       <button id="saveLibraryBtn" disabled title="Salvar este sermão na Biblioteca">💾 Salvar na Biblioteca</button>
       <button id="extrasBtn" title="Gerar materiais extras e exportar o sermão">📄 Materiais e exportar</button>
+      <button id="editBtn" title="Editar o texto do sermão na tela">✏️ Editar</button>
+      <button id="trocarBtn" title="Trocar uma palavra ou frase em todos os modos">🔎 Substituir em tudo</button>
     </div>
 
     <h1 class="title" id="mainTitle">Quando o Filho do Homem Vier,<br>Achará Fé na Terra?</h1>
@@ -797,6 +832,36 @@
         <div class="input-spinner" id="inputSpinner"><span class="spin"></span> <span id="spinnerTxt">Processando sermão...</span></div>
         <button class="btn-secondary" id="inputCancel">Cancelar</button>
         <button class="btn-primary" id="processBtn">Processar Sermão</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="edit-bar" id="editBar">
+    <div class="edit-bar-txt" id="editBarTxt"></div>
+    <div class="edit-bar-btns">
+      <button class="btn-secondary" id="editCancel">Cancelar</button>
+      <button class="btn-primary" id="editSave">Salvar edição</button>
+    </div>
+  </div>
+
+  <div class="input-overlay" id="trocarOverlay">
+    <div class="input-modal">
+      <div class="input-modal-head">
+        <div class="input-modal-title">Substituir em tudo</div>
+        <button class="lex-modal-close" id="trocarClose">✕</button>
+      </div>
+      <div class="extras-scroll">
+        <div class="input-hint">Troca uma palavra ou frase nos três modos (Exegético, Leitura e Púlpito) e no título deste sermão, de uma vez. Útil para corrigir um nome ou um termo que se repete.</div>
+        <div class="input-options" style="flex-direction:column;">
+          <label>Localizar <input type="text" id="trocarDe" autocomplete="off"></label>
+          <label>Substituir por <input type="text" id="trocarPara" autocomplete="off"></label>
+          <label class="check"><input type="checkbox" id="trocarCaixa"> Ignorar maiúsculas e minúsculas</label>
+        </div>
+        <div class="input-error" id="trocarMsg"></div>
+        <div class="input-actions">
+          <button class="btn-secondary" id="trocarFechar">Fechar</button>
+          <button class="btn-primary" id="trocarFazer">Substituir em tudo</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1432,6 +1497,9 @@
   customContent = MUSTARD_CONTENT;
   enableCustomSourceButton();
   let customRaw = '';             // último texto colado, para reabrir o modal em modo de edição
+  let customData = null;          // dados estruturados do "Meu Sermão" (onde ficam guardadas as edições)
+  let activeLibraryId = null;     // id do sermão aberto pela Biblioteca (null = "Meu Sermão")
+  let editando = false;           // true enquanto o sermão está em modo de edição
 
   const ORIGINAL_TITLE_HTML = document.getElementById('mainTitle').innerHTML;
   const ORIGINAL_CITATION_TEXT = document.getElementById('mainCitation').textContent;
@@ -1866,7 +1934,9 @@
       const registro = await sbCarregarRegistro();
       if(registro && registro.meu_sermao_data){
         const parsed = JSON.parse(registro.meu_sermao_data);
-        customContent = buildContentFromData(parsed);
+        customContent = aplicarEdicoesSalvas(buildContentFromData(parsed), parsed);
+        customData = parsed;
+        activeLibraryId = null;
         customRaw = registro.meu_sermao_raw || '';
         Object.assign(lexData, customContent.lexEntries || {});
         enableCustomSourceButton();
@@ -1964,6 +2034,8 @@
     const entry = libraryEntries.find(e => e.id === id);
     if(!entry) return;
     customContent = entry.content;
+    customData = null;
+    activeLibraryId = id;
     customRaw = entry.raw || '';
     activeSermon = 'custom';
     enableCustomSourceButton();
@@ -2105,6 +2177,8 @@
   // Aplica um objeto de dados (vindo da API ou do fallback local) ao app
   async function applyProcessedData(data, raw){
     customContent = buildContentFromData(data);
+    customData = data;
+    activeLibraryId = null;
     customRaw = raw;
     activeSermon = 'custom';
     Object.assign(lexData, customContent.lexEntries || {});
@@ -2212,6 +2286,7 @@
       return;
     }
 
+    if(customData && customData._editado && !window.confirm('O "Meu Sermão" atual tem edições salvas. Processar de novo vai substituí-las por um sermão novo. Deseja continuar?')) return;
     const videoUrl = parseYouTubeUrl(raw);
 
     processBtn.disabled = true;
@@ -2653,6 +2728,268 @@ ${raw.slice(0, 30000)}
   document.getElementById('resPdf').addEventListener('click', () => { if(extraAtual) imprimirPdf(extraAtual.nome + ' - ' + extraAtual.sermao, blocosDoResultado()); });
   document.getElementById('resVoltar').addEventListener('click', () => mostrarVistaExtras('menu'));
   document.getElementById('resRefazer').addEventListener('click', () => { if(extraAtual) gerarExtra(extraAtual.tipo); });
+
+
+  // =====================================================================
+  //  EDITAR O SERMÃO NA TELA E SUBSTITUIR EM TODOS OS MODOS
+  // =====================================================================
+  const SELETOR_EDITAVEL = '#sermonBody .body-text, #sermonBody .closing-q, #sermonBody .essay-open, #sermonBody .division-title, #sermonBody .prop-text, #sermonBody .anchor, #sermonBody .conferir-box li, #sermonBody .hist-context p, #mainTitle';
+  const NOMES_MODO = { exegetico: 'Exegético', leitura: 'Leitura', pulpito: 'Púlpito' };
+  let houveAlteracao = false;
+  let tituloAoEditar = '';
+
+  // Reaplica por cima do sermão as edições guardadas junto com os dados dele
+  function aplicarEdicoesSalvas(conteudo, dados){
+    if(dados && dados._editado){
+      ['exegetico', 'leitura', 'pulpito', 'toc'].forEach(k => {
+        if(dados._editado[k]) conteudo[k] = dados._editado[k];
+      });
+    }
+    return conteudo;
+  }
+  function avisar(msg){
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => { if(t.parentNode) t.parentNode.removeChild(t); }, 2600);
+  }
+  function textoDeHtml(html){
+    const d = document.createElement('div');
+    d.innerHTML = html || '';
+    return d.textContent.replace(/\s+/g, ' ').trim();
+  }
+  function escapeRegex(t){ return String(t).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  // Troca texto só dentro dos textos (nunca nas marcas HTML). Devolve o HTML novo e quantas trocas fez.
+  function substituirNoHtml(html, achar, trocar, ignorarCaixa){
+    const raiz = document.createElement('div');
+    raiz.innerHTML = html || '';
+    const re = new RegExp(escapeRegex(achar), ignorarCaixa ? 'gi' : 'g');
+    const nos = [];
+    const w = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT);
+    while(w.nextNode()) nos.push(w.currentNode);
+    let total = 0;
+    nos.forEach(n => {
+      const antes = n.nodeValue;
+      const depois = antes.replace(re, () => { total++; return trocar; });
+      if(depois !== antes) n.nodeValue = depois;
+    });
+    return { html: raiz.innerHTML, total: total };
+  }
+
+  async function sbSalvarComResultado(campos){
+    try{
+      const { error } = await sb.from('pregacaopro_dados').upsert(Object.assign({ id: REGISTRO_ID }, campos));
+      if(error) throw error;
+      return true;
+    }catch(e){
+      console.error('Supabase (salvar edição):', (e && (e.message || e.error_description || e.hint)) || JSON.stringify(e));
+      return false;
+    }
+  }
+
+  function podeEditar(){
+    if(activeSermon !== 'custom' || !customContent){
+      window.alert('O Sermão de Exemplo não pode ser editado. Abra "Meu Sermão" ou um sermão da Biblioteca.');
+      return false;
+    }
+    if(!activeLibraryId && !customData){
+      window.alert('Para editar, gere este sermão de novo em "Inserir Sermão" ou abra-o pela Biblioteca.');
+      return false;
+    }
+    return true;
+  }
+
+  // Guarda as alterações: primeiro na nuvem; só se der certo, atualiza o que está na tela
+  // alt = { modos: {exegetico?, leitura?, pulpito?}, toc?, titulo? }
+  async function persistirEdicao(alt){
+    const modos = alt.modos || {};
+    if(activeLibraryId){
+      await loadLibrary(); // pega a Biblioteca mais recente antes de gravar
+      const entry = libraryEntries.find(e => e.id === activeLibraryId);
+      if(!entry) throw new Error('Este sermão não foi encontrado na Biblioteca (talvez tenha sido excluído).');
+      entry.content = entry.content || {};
+      Object.keys(modos).forEach(m => { entry.content[m] = modos[m]; });
+      if(alt.toc) entry.content.toc = alt.toc;
+      if(alt.titulo != null){ entry.titulo = alt.titulo; entry.content.titulo = esc(alt.titulo); }
+      if(!(await sbSalvarComResultado({ biblioteca: libraryEntries }))) throw new Error('falha ao gravar na nuvem.');
+    }else{
+      const copia = JSON.parse(JSON.stringify(customData));
+      copia._editado = copia._editado || {};
+      Object.keys(modos).forEach(m => { copia._editado[m] = modos[m]; });
+      if(alt.toc) copia._editado.toc = alt.toc;
+      if(alt.titulo != null) copia.titulo = alt.titulo;
+      if(!(await sbSalvarComResultado({ meu_sermao_data: JSON.stringify(copia) }))) throw new Error('falha ao gravar na nuvem.');
+      customData = copia;
+    }
+    Object.keys(modos).forEach(m => { customContent[m] = modos[m]; });
+    if(alt.toc) customContent.toc = alt.toc;
+    if(alt.titulo != null) customContent.titulo = esc(alt.titulo);
+  }
+
+  // ---------- Modo de edição ----------
+  function iniciarEdicao(){
+    if(editando || !podeEditar()) return;
+    const modo = document.body.getAttribute('data-mode') || 'exegetico';
+    editando = true;
+    houveAlteracao = false;
+    tituloAoEditar = document.getElementById('mainTitle').textContent.replace(/\s+/g, ' ').trim();
+    document.body.classList.add('editando');
+    document.querySelectorAll(SELETOR_EDITAVEL).forEach(el => {
+      el.setAttribute('contenteditable', 'true');
+      el.setAttribute('spellcheck', 'true');
+    });
+    document.querySelectorAll('#sermonBody .lex-chip').forEach(c => c.setAttribute('contenteditable', 'false'));
+    document.getElementById('editBarTxt').innerHTML = '<strong>Editando o modo ' + NOMES_MODO[modo] + '.</strong> Toque no texto para corrigir. A correção vale só para este modo; para trocar uma palavra em todos, use "Substituir em tudo".';
+    const sv = document.getElementById('editSave');
+    sv.disabled = false;
+    sv.textContent = 'Salvar edição';
+  }
+  function terminarEdicao(){
+    editando = false;
+    houveAlteracao = false;
+    document.body.classList.remove('editando');
+    document.querySelectorAll('[contenteditable]').forEach(el => {
+      el.removeAttribute('contenteditable');
+      el.removeAttribute('spellcheck');
+    });
+  }
+  function cancelarEdicao(){
+    if(!editando) return;
+    if(houveAlteracao && !window.confirm('Descartar as alterações feitas?')) return;
+    terminarEdicao();
+    renderSermon(document.body.getAttribute('data-mode') || 'exegetico');
+    updateTitleDisplay();
+  }
+  async function salvarEdicao(){
+    if(!editando) return;
+    const modo = document.body.getAttribute('data-mode') || 'exegetico';
+    const btn = document.getElementById('editSave');
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+    try{
+      const clone = document.getElementById('sermonBody').cloneNode(true);
+      clone.querySelectorAll('[contenteditable]').forEach(el => {
+        el.removeAttribute('contenteditable');
+        el.removeAttribute('spellcheck');
+      });
+      const w = document.createTreeWalker(clone, NodeFilter.SHOW_TEXT);
+      while(w.nextNode()){
+        const n = w.currentNode;
+        if(n.nodeValue.indexOf('\u00a0') >= 0) n.nodeValue = n.nodeValue.replace(/\u00a0/g, ' ');
+      }
+      const alt = { modos: {} };
+      alt.modos[modo] = clone.innerHTML;
+
+      // títulos dos pontos alterados -> atualiza também o sumário
+      const toc = (customContent.toc || []).map(t => Object.assign({}, t));
+      let tocMudou = false;
+      clone.querySelectorAll('[id^="nav-div"]').forEach(card => {
+        const t = card.querySelector('.division-title');
+        const item = toc.find(x => x.id === card.id);
+        if(t && item){
+          const novo = esc(t.textContent.replace(/\s+/g, ' ').trim());
+          if(novo && novo !== item.label){ item.label = novo; tocMudou = true; }
+        }
+      });
+      if(tocMudou) alt.toc = toc;
+
+      const tituloNovo = document.getElementById('mainTitle').textContent.replace(/\s+/g, ' ').trim();
+      if(tituloNovo && tituloNovo !== tituloAoEditar) alt.titulo = tituloNovo;
+
+      await persistirEdicao(alt);
+      terminarEdicao();
+      renderSermon(modo);
+      updateTitleDisplay();
+      avisar('Edição salva.');
+    }catch(err){
+      console.error('Erro ao salvar edição:', err);
+      window.alert('Não foi possível salvar agora: ' + ((err && err.message) ? err.message : 'erro desconhecido') + '\nSuas alterações continuam na tela. Tente salvar de novo.');
+      btn.disabled = false;
+      btn.textContent = 'Salvar edição';
+    }
+  }
+
+  // Dentro dos campos editáveis: sem quebra de linha, e colar sempre como texto simples
+  document.addEventListener('keydown', (e) => {
+    if(editando && e.key === 'Enter' && e.target && e.target.closest && e.target.closest('[contenteditable="true"]')) e.preventDefault();
+  }, true);
+  document.addEventListener('beforeinput', (e) => {
+    if(!editando) return;
+    if(e.inputType === 'insertParagraph' || e.inputType === 'insertLineBreak' || e.inputType === 'insertFromDrop') e.preventDefault();
+  }, true);
+  document.addEventListener('paste', (e) => {
+    if(!editando || !e.target || !e.target.closest || !e.target.closest('[contenteditable="true"]')) return;
+    e.preventDefault();
+    const txt = ((e.clipboardData || window.clipboardData).getData('text/plain') || '').replace(/\s*\n+\s*/g, ' ');
+    document.execCommand('insertText', false, txt);
+  }, true);
+  document.addEventListener('drop', (e) => {
+    if(editando && e.target && e.target.closest && e.target.closest('[contenteditable="true"]')) e.preventDefault();
+  }, true);
+  document.addEventListener('input', () => { if(editando) houveAlteracao = true; });
+
+  document.getElementById('editBtn').addEventListener('click', iniciarEdicao);
+  document.getElementById('editCancel').addEventListener('click', cancelarEdicao);
+  document.getElementById('editSave').addEventListener('click', salvarEdicao);
+
+  // ---------- Substituir em todos os modos ----------
+  const trocarOverlay = document.getElementById('trocarOverlay');
+  const trocarMsg = document.getElementById('trocarMsg');
+  function mostrarMsgTrocar(texto, ehAviso){
+    trocarMsg.textContent = texto;
+    trocarMsg.classList.add('show');
+    trocarMsg.classList.toggle('notice', !!ehAviso);
+  }
+  async function substituirEmTudo(){
+    trocarMsg.classList.remove('show');
+    const de = document.getElementById('trocarDe').value;
+    const para = document.getElementById('trocarPara').value;
+    const ignorar = document.getElementById('trocarCaixa').checked;
+    if(!de){ mostrarMsgTrocar('Digite o texto a localizar.'); return; }
+    if(!podeEditar()) return;
+
+    const alt = { modos: {} };
+    let total = 0;
+    ['exegetico', 'leitura', 'pulpito'].forEach(m => {
+      const r = substituirNoHtml(customContent[m], de, para, ignorar);
+      if(r.total > 0){ alt.modos[m] = r.html; total += r.total; }
+    });
+    const rt = substituirNoHtml(customContent.titulo, de, para, ignorar);
+    if(rt.total > 0) alt.titulo = textoDeHtml(rt.html);
+    let tocMudou = false;
+    const toc = (customContent.toc || []).map(t => {
+      const r = substituirNoHtml(t.label, de, para, ignorar);
+      if(r.total > 0){ tocMudou = true; return Object.assign({}, t, { label: r.html }); }
+      return Object.assign({}, t);
+    });
+    if(tocMudou) alt.toc = toc;
+
+    if(total === 0 && alt.titulo == null){ mostrarMsgTrocar('Não encontrei "' + de + '" neste sermão.'); return; }
+    if(!window.confirm('Substituir "' + de + '" por "' + para + '" em ' + total + ' trecho(s) deste sermão (nos três modos)?')) return;
+
+    const btn = document.getElementById('trocarFazer');
+    btn.disabled = true;
+    try{
+      await persistirEdicao(alt);
+      renderSermon(document.body.getAttribute('data-mode') || 'exegetico');
+      updateTitleDisplay();
+      mostrarMsgTrocar(total + ' trecho(s) alterado(s) e salvo(s).', true);
+    }catch(err){
+      console.error('Erro ao substituir:', err);
+      mostrarMsgTrocar('Não foi possível salvar agora: ' + ((err && err.message) ? err.message : 'erro desconhecido'));
+    }finally{
+      btn.disabled = false;
+    }
+  }
+  document.getElementById('trocarBtn').addEventListener('click', () => {
+    if(!podeEditar()) return;
+    trocarMsg.classList.remove('show');
+    trocarOverlay.classList.add('open');
+  });
+  document.getElementById('trocarClose').addEventListener('click', () => trocarOverlay.classList.remove('open'));
+  document.getElementById('trocarFechar').addEventListener('click', () => trocarOverlay.classList.remove('open'));
+  document.getElementById('trocarFazer').addEventListener('click', substituirEmTudo);
 
   processBtn.addEventListener('click', processSermon);
 
