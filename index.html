@@ -510,6 +510,50 @@
   }
   .input-options label.check{ flex-direction:row; align-items:center; gap:8px; font-weight:600; }
 
+  /* ---------- BIBLIOTECA ORGANIZADA ---------- */
+  .lib-search{
+    width:100%; box-sizing:border-box; font-family: inherit; font-size:14.5px;
+    padding:10px 16px; border-radius:999px; border:1px solid var(--rule);
+    background: var(--card-bg); color: var(--ink); margin-bottom:10px;
+  }
+  .lib-chips{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .lib-chip{
+    font-family: inherit; font-size:13px; font-weight:700; padding:6px 14px; border-radius:999px;
+    border:1px solid var(--rule); background: var(--card-bg); color: var(--ink); cursor:pointer;
+  }
+  .lib-chip.active{ background: var(--pill-text); color:#fff; border-color: var(--pill-text); }
+  .library-item-tags{ display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+  .lib-tag{
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size:11.5px; font-weight:800; padding:2px 9px; border-radius:999px;
+    background: var(--chip-code-bg); color: var(--chip-code-text);
+  }
+  .lib-tag.ok{ background:#DDF3E4; color:#1E7A3C; }
+  [data-theme="dark"] .lib-tag.ok{ background:#1F3A2A; color:#7FD6A0; }
+  .library-item-nota{
+    font-size:12.5px; color: var(--ink-soft); font-style:italic; margin-top:6px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .library-item-edit{
+    flex:0 0 auto; width:34px; height:34px; border-radius:50%; border:none;
+    background:transparent; color: var(--ink-soft); cursor:pointer; font-size:16px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .library-item-edit:active{ background: var(--anchor-bg); }
+  .det-preg-row{
+    display:flex; align-items:center; gap:8px; background: var(--card-bg);
+    border:1px solid var(--rule); border-radius:12px; padding:8px 12px; margin-bottom:6px; font-size:14px;
+  }
+  .det-preg-row span{ flex:1; min-width:0; }
+  .det-preg-row button{ border:none; background:transparent; color: var(--ink-soft); cursor:pointer; font-size:16px; }
+  .det-vazio{ font-size:13px; color: var(--ink-soft); font-style:italic; margin-bottom:8px; }
+  .det-add{ display:flex; gap:8px; flex-wrap:wrap; margin: 8px 0 12px; }
+  .det-add input{
+    font-family: inherit; font-size:14.5px; padding:10px 12px; border-radius:12px;
+    border:1px solid var(--rule); background: var(--card-bg); color: var(--ink);
+  }
+  .det-add input[type="text"]{ flex:1; min-width:160px; }
+
   /* ---------- TOC MODAL ---------- */
   .toc-overlay{
     position: fixed; inset:0; background: rgba(20,18,35,.45);
@@ -919,8 +963,48 @@
         <div class="input-modal-title">📚 Biblioteca de Sermões</div>
         <button class="lex-modal-close" id="libraryClose">✕</button>
       </div>
-      <div class="input-hint">Sermões salvos ficam disponíveis aqui entre sessões. Toque em um deles para abrir, ou no ícone de lixeira para remover.</div>
+      <div class="input-hint">Toque em um sermão para abrir, em 📝 para registrar série, pregações e notas, ou na lixeira para remover.</div>
+      <input type="search" class="lib-search" id="libBusca" placeholder="Buscar por título, texto bíblico, série, local ou nota" autocomplete="off">
+      <div class="lib-chips">
+        <button class="lib-chip active" data-filtro="todos">Todos</button>
+        <button class="lib-chip" data-filtro="pregados">Já preguei</button>
+        <button class="lib-chip" data-filtro="novos">Ainda não preguei</button>
+      </div>
       <div id="libraryList" class="library-list"></div>
+    </div>
+  </div>
+
+  <div class="input-overlay" id="detOverlay" style="z-index:130;">
+    <div class="input-modal">
+      <div class="input-modal-head">
+        <div class="input-modal-title" id="detTitulo">Detalhes do sermão</div>
+        <button class="lex-modal-close" id="detClose">✕</button>
+      </div>
+      <div class="extras-scroll">
+        <div class="input-options" style="flex-direction:column;">
+          <label>Série ou tema (opcional)
+            <input type="text" id="detSerie" list="detSeriesLista" maxlength="60" placeholder="Ex.: Carta aos Filipenses" autocomplete="off">
+          </label>
+          <datalist id="detSeriesLista"></datalist>
+        </div>
+
+        <div class="extras-section-title">Onde e quando preguei</div>
+        <div id="detPregacoes"></div>
+        <div class="det-add">
+          <input type="date" id="detData">
+          <input type="text" id="detLocal" maxlength="80" placeholder="Igreja ou evento (opcional)" autocomplete="off">
+          <button class="btn-secondary" id="detAdd">Adicionar</button>
+        </div>
+
+        <div class="extras-section-title">Minha nota depois de pregar</div>
+        <textarea class="extras-textarea" id="detNota" style="min-height:120px;" maxlength="2000" placeholder="Ex.: o ponto 2 funcionou bem; encurtar a ilustração do ponto 1..."></textarea>
+
+        <div class="input-error" id="detMsg"></div>
+        <div class="input-actions">
+          <button class="btn-secondary" id="detCancelar">Cancelar</button>
+          <button class="btn-primary" id="detSalvar">Salvar</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1998,28 +2082,83 @@
     }catch(e){ return ''; }
   }
 
+  let libFiltro = 'todos';
+  let libBusca = '';
+  function normalizarTexto(t){
+    return String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  }
+  function dataIsoParaDate(iso){
+    const p = String(iso || '').split('-');
+    if(p.length !== 3) return null;
+    const d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    return isNaN(d.getTime()) ? null : d;
+  }
+  function formatarDataIso(iso){
+    const d = dataIsoParaDate(iso);
+    return d ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+  }
+  // Pregações registradas de um sermão, da mais recente para a mais antiga
+  function pregacoesDe(entry){
+    return Array.isArray(entry.pregacoes)
+      ? entry.pregacoes.filter(x => x && x.data).slice().sort((a, b) => String(b.data).localeCompare(String(a.data)))
+      : [];
+  }
+  function entradaCombinaComBusca(entry, termo){
+    if(!termo) return true;
+    const campos = [entry.titulo, entry.citacao, entry.serie, entry.nota].concat(pregacoesDe(entry).map(x => x.local));
+    return normalizarTexto(campos.join(' ')).indexOf(termo) >= 0;
+  }
+
   function renderLibraryList(){
     const listEl = document.getElementById('libraryList');
     if(libraryEntries.length === 0){
       listEl.innerHTML = '<div class="library-empty">Nenhum sermão salvo ainda.<br>Processe um sermão e toque em "Salvar na Biblioteca".</div>';
       return;
     }
-    listEl.innerHTML = libraryEntries.map(entry => `
-      <div class="library-item" data-open="${entry.id}">
+    const termo = normalizarTexto(libBusca.trim());
+    const lista = libraryEntries.filter(e => {
+      const jaPregou = pregacoesDe(e).length > 0;
+      if(libFiltro === 'pregados' && !jaPregou) return false;
+      if(libFiltro === 'novos' && jaPregou) return false;
+      return entradaCombinaComBusca(e, termo);
+    });
+    if(lista.length === 0){
+      listEl.innerHTML = '<div class="library-empty">Nenhum sermão encontrado com esse filtro.</div>';
+      return;
+    }
+    listEl.innerHTML = lista.map(entry => {
+      const preg = pregacoesDe(entry);
+      const tags = [];
+      if(entry.serie) tags.push('<span class="lib-tag">' + esc(entry.serie) + '</span>');
+      if(preg.length){
+        const ult = preg[0];
+        tags.push('<span class="lib-tag ok">✓ Pregado ' + preg.length + 'x · ' + esc(formatarDataIso(ult.data)) + (ult.local ? ' · ' + esc(ult.local) : '') + '</span>');
+      }
+      return `
+      <div class="library-item" data-open="${esc(entry.id)}">
         <div class="library-item-main">
           <div class="library-item-title">${esc(entry.titulo || 'Sermão sem título')}</div>
           <div class="library-item-sub">${esc(entry.citacao || '')}${entry.citacao ? ' · ' : ''}salvo em ${formatSavedDate(entry.savedAt)}</div>
+          ${tags.length ? '<div class="library-item-tags">' + tags.join('') + '</div>' : ''}
+          ${entry.nota ? '<div class="library-item-nota">📝 ' + esc(String(entry.nota).replace(/\s+/g, ' ').slice(0, 110)) + '</div>' : ''}
         </div>
-        <button class="library-item-delete" data-delete="${entry.id}" title="Excluir">
+        <button class="library-item-edit" data-details="${esc(entry.id)}" title="Série, pregações e nota">📝</button>
+        <button class="library-item-delete" data-delete="${esc(entry.id)}" title="Excluir">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13"/></svg>
         </button>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
 
     listEl.querySelectorAll('[data-open]').forEach(row => {
       row.addEventListener('click', (e) => {
-        if(e.target.closest('[data-delete]')) return;
+        if(e.target.closest('[data-delete]') || e.target.closest('[data-details]')) return;
         loadLibraryEntry(row.getAttribute('data-open'));
+      });
+    });
+    listEl.querySelectorAll('[data-details]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        abrirDetalhes(btn.getAttribute('data-details'));
       });
     });
     listEl.querySelectorAll('[data-delete]').forEach(btn => {
@@ -2990,6 +3129,134 @@ ${raw.slice(0, 30000)}
   document.getElementById('trocarClose').addEventListener('click', () => trocarOverlay.classList.remove('open'));
   document.getElementById('trocarFechar').addEventListener('click', () => trocarOverlay.classList.remove('open'));
   document.getElementById('trocarFazer').addEventListener('click', substituirEmTudo);
+
+
+  // =====================================================================
+  //  BIBLIOTECA ORGANIZADA: busca, filtros, série, pregações e nota
+  // =====================================================================
+  const libBuscaEl = document.getElementById('libBusca');
+  libBuscaEl.addEventListener('input', () => { libBusca = libBuscaEl.value; renderLibraryList(); });
+  document.querySelectorAll('.lib-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      libFiltro = chip.getAttribute('data-filtro');
+      document.querySelectorAll('.lib-chip').forEach(c => c.classList.toggle('active', c === chip));
+      renderLibraryList();
+    });
+  });
+  // Ao abrir a Biblioteca, começa sem busca e mostrando todos
+  document.getElementById('libraryBtn').addEventListener('click', () => {
+    libBusca = '';
+    libFiltro = 'todos';
+    libBuscaEl.value = '';
+    document.querySelectorAll('.lib-chip').forEach(c => c.classList.toggle('active', c.getAttribute('data-filtro') === 'todos'));
+  });
+
+  const detOverlay = document.getElementById('detOverlay');
+  const detSerie = document.getElementById('detSerie');
+  const detNota = document.getElementById('detNota');
+  const detData = document.getElementById('detData');
+  const detLocal = document.getElementById('detLocal');
+  const detMsg = document.getElementById('detMsg');
+  let detId = null;
+  let detPregacoes = [];
+  let detPendente = false;   // true se a data/local foram mexidos e ainda não adicionados
+
+  function hojeIso(){
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function ultimoLocalUsado(){
+    try{ return localStorage.getItem('pp-ultimo-local') || ''; }catch(e){ return ''; }
+  }
+  function renderDetPregacoes(){
+    const box = document.getElementById('detPregacoes');
+    if(!detPregacoes.length){
+      box.innerHTML = '<div class="det-vazio">Nenhuma pregação registrada ainda.</div>';
+      return;
+    }
+    box.innerHTML = detPregacoes.map((x, idx) =>
+      '<div class="det-preg-row"><span>' + esc(formatarDataIso(x.data)) + (x.local ? ' · ' + esc(x.local) : '') + '</span>' +
+      '<button data-rem="' + idx + '" title="Remover">✕</button></div>'
+    ).join('');
+    box.querySelectorAll('[data-rem]').forEach(b => {
+      b.addEventListener('click', () => {
+        detPregacoes.splice(Number(b.getAttribute('data-rem')), 1);
+        renderDetPregacoes();
+      });
+    });
+  }
+  function abrirDetalhes(id){
+    const entry = libraryEntries.find(e => e.id === id);
+    if(!entry) return;
+    detId = id;
+    document.getElementById('detTitulo').textContent = entry.titulo || 'Detalhes do sermão';
+    detSerie.value = entry.serie || '';
+    detNota.value = entry.nota || '';
+    detPregacoes = pregacoesDe(entry).map(x => ({ data: x.data, local: x.local || '' }));
+    const lista = document.getElementById('detSeriesLista');
+    lista.innerHTML = '';
+    Array.from(new Set(libraryEntries.map(e => String(e.serie || '').trim()).filter(Boolean))).sort().forEach(nome => {
+      const o = document.createElement('option');
+      o.value = nome;
+      lista.appendChild(o);
+    });
+    detData.value = hojeIso();
+    detLocal.value = ultimoLocalUsado();
+    detPendente = false;
+    detMsg.classList.remove('show');
+    renderDetPregacoes();
+    detOverlay.classList.add('open');
+  }
+  function adicionarPregacao(){
+    if(!dataIsoParaDate(detData.value)){
+      detMsg.textContent = 'Escolha a data em que você pregou.';
+      detMsg.classList.add('show');
+      return false;
+    }
+    detMsg.classList.remove('show');
+    const local = detLocal.value.trim().slice(0, 80);
+    detPregacoes.push({ data: detData.value, local: local });
+    detPregacoes.sort((a, b) => String(b.data).localeCompare(String(a.data)));
+    try{ if(local) localStorage.setItem('pp-ultimo-local', local); }catch(e){}
+    detData.value = hojeIso();
+    detPendente = false;
+    renderDetPregacoes();
+    return true;
+  }
+  async function salvarDetalhes(){
+    const btn = document.getElementById('detSalvar');
+    detMsg.classList.remove('show');
+    if(detPendente && detData.value && !adicionarPregacao()) return;
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+    try{
+      await loadLibrary(); // pega a Biblioteca mais recente antes de gravar
+      const entry = libraryEntries.find(e => e.id === detId);
+      if(!entry) throw new Error('Este sermão não foi encontrado na Biblioteca (talvez tenha sido excluído).');
+      const serie = detSerie.value.trim().slice(0, 60);
+      const nota = detNota.value.trim().slice(0, 2000);
+      if(serie) entry.serie = serie; else delete entry.serie;
+      if(nota) entry.nota = nota; else delete entry.nota;
+      if(detPregacoes.length) entry.pregacoes = detPregacoes.map(x => ({ data: x.data, local: x.local })); else delete entry.pregacoes;
+      if(!(await sbSalvarComResultado({ biblioteca: libraryEntries }))) throw new Error('falha ao gravar na nuvem.');
+      detOverlay.classList.remove('open');
+      renderLibraryList();
+      avisar('Detalhes salvos.');
+    }catch(err){
+      console.error('Erro ao salvar detalhes:', err);
+      detMsg.textContent = 'Não foi possível salvar agora: ' + ((err && err.message) ? err.message : 'erro desconhecido');
+      detMsg.classList.add('show');
+    }finally{
+      btn.disabled = false;
+      btn.textContent = 'Salvar';
+    }
+  }
+  detData.addEventListener('input', () => { detPendente = true; });
+  detLocal.addEventListener('input', () => { detPendente = true; });
+  document.getElementById('detAdd').addEventListener('click', adicionarPregacao);
+  document.getElementById('detSalvar').addEventListener('click', salvarDetalhes);
+  document.getElementById('detCancelar').addEventListener('click', () => detOverlay.classList.remove('open'));
+  document.getElementById('detClose').addEventListener('click', () => detOverlay.classList.remove('open'));
 
   processBtn.addEventListener('click', processSermon);
 
