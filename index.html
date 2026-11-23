@@ -427,133 +427,6 @@
   body.structure-hidden .eyebrow-label,
   body.structure-hidden .division-title{ display:none; }
 
-  /* ---------- CONFERIR ANTES DE PREGAR ---------- */
-  .conferir-box{
-    margin: 34px 0 10px; padding: 18px 20px;
-    border: 1.5px dashed var(--box-border); border-radius: 18px; background: var(--card-bg);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  }
-  .conferir-title{
-    font-weight:800; font-size:13px; letter-spacing:.8px; text-transform:uppercase;
-    color: var(--ink-soft); margin-bottom:10px;
-  }
-  .conferir-box ul{ margin:0; padding-left:20px; }
-  .conferir-box li{ font-size:15px; line-height:1.55; margin-bottom:6px; color: var(--ink); }
-  body[data-mode="pulpito"] .conferir-box{ display:none; }
-
-  /* ---------- OPÇÕES DE GERAÇÃO (duração e público) ---------- */
-  .input-options{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
-  .input-options label{
-    flex:1; min-width:140px; display:flex; flex-direction:column; gap:4px;
-    font-size:12.5px; font-weight:700; color: var(--ink-soft);
-  }
-  .input-options select{
-    font-family: inherit; font-size:14.5px; padding:9px 10px; border-radius:12px;
-    border:1px solid var(--rule); background: var(--card-bg); color: var(--ink);
-  }
-
-  /* ---------- MATERIAIS EXTRAS E EXPORTAÇÃO ---------- */
-  .extras-scroll{ overflow-y:auto; flex:1; padding-right:2px; }
-  .extras-section-title{
-    font-weight:800; font-size:12.5px; letter-spacing:.6px; text-transform:uppercase;
-    color: var(--ink-soft); margin: 18px 0 10px;
-  }
-  .extras-section-title:first-child{ margin-top:4px; }
-  .extra-btn{
-    display:flex; flex-direction:column; align-items:flex-start; text-align:left; width:100%;
-    background: var(--card-bg); color: var(--ink); border:1px solid var(--rule);
-    border-radius:16px; padding:14px 16px; margin-bottom:10px; cursor:pointer; font-family: inherit;
-  }
-  .extra-btn:active{ background: var(--anchor-bg); }
-  .extra-btn strong{ font-size:15px; }
-  .extra-btn span{ font-size:13px; color: var(--ink-soft); margin-top:3px; }
-  .extras-actions{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
-  .extras-actions .btn-secondary, .extras-actions .btn-primary{ flex:1; min-width:100px; }
-  .extras-textarea{
-    width:100%; min-height:300px; resize:vertical; box-sizing:border-box;
-    border-radius:16px; border:1px solid var(--rule); background: var(--card-bg); color: var(--ink);
-    padding:14px 16px; font-family: Georgia, serif; font-size:15.5px; line-height:1.5; margin-bottom:12px;
-  }
-  .extras-carregando{ padding: 40px 10px; display:flex; justify-content:center; }
-  body[data-mode="pulpito"] #extrasBtn{ display:none; }
-
-  /* ---------- EDITAR O SERMÃO NA TELA ---------- */
-  body.editando [contenteditable="true"]{
-    outline: 1.5px dashed var(--pill-text); outline-offset: 3px; border-radius: 6px;
-    background: rgba(70,56,214,.06); caret-color: var(--pill-text);
-    -webkit-user-select: text; user-select: text;
-  }
-  body.editando [contenteditable="true"]:focus{ outline-style: solid; background: rgba(70,56,214,.11); }
-  body.editando .topbar, body.editando .source-switch{ pointer-events:none; opacity:.5; }
-  body.editando #sermonBody{ padding-bottom: 120px; }
-  .edit-bar{
-    position: fixed; left:0; right:0; bottom:0; z-index: 90;
-    background: var(--page-bg); color: var(--ink); border-top: 1px solid var(--rule);
-    padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px));
-    display:none; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
-    box-shadow: 0 -6px 18px rgba(0,0,0,.14);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  }
-  body.editando .edit-bar{ display:flex; }
-  .edit-bar-txt{ flex:1; min-width:200px; font-size:13px; line-height:1.4; color: var(--ink-soft); }
-  .edit-bar-txt strong{ color: var(--ink); }
-  .edit-bar-btns{ display:flex; gap:8px; }
-  .toast{
-    position: fixed; left:50%; transform: translateX(-50%); bottom: 96px; z-index: 300;
-    background:#222; color:#fff; padding:10px 18px; border-radius:999px; font-size:14px; font-weight:600;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    box-shadow: 0 6px 18px rgba(0,0,0,.3);
-  }
-  .input-options input[type="text"]{
-    font-family: inherit; font-size:14.5px; padding:10px 12px; border-radius:12px;
-    border:1px solid var(--rule); background: var(--card-bg); color: var(--ink);
-  }
-  .input-options label.check{ flex-direction:row; align-items:center; gap:8px; font-weight:600; }
-
-  /* ---------- BIBLIOTECA ORGANIZADA ---------- */
-  .lib-search{
-    width:100%; box-sizing:border-box; font-family: inherit; font-size:14.5px;
-    padding:10px 16px; border-radius:999px; border:1px solid var(--rule);
-    background: var(--card-bg); color: var(--ink); margin-bottom:10px;
-  }
-  .lib-chips{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
-  .lib-chip{
-    font-family: inherit; font-size:13px; font-weight:700; padding:6px 14px; border-radius:999px;
-    border:1px solid var(--rule); background: var(--card-bg); color: var(--ink); cursor:pointer;
-  }
-  .lib-chip.active{ background: var(--pill-text); color:#fff; border-color: var(--pill-text); }
-  .library-item-tags{ display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
-  .lib-tag{
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size:11.5px; font-weight:800; padding:2px 9px; border-radius:999px;
-    background: var(--chip-code-bg); color: var(--chip-code-text);
-  }
-  .lib-tag.ok{ background:#DDF3E4; color:#1E7A3C; }
-  [data-theme="dark"] .lib-tag.ok{ background:#1F3A2A; color:#7FD6A0; }
-  .library-item-nota{
-    font-size:12.5px; color: var(--ink-soft); font-style:italic; margin-top:6px;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  }
-  .library-item-edit{
-    flex:0 0 auto; width:34px; height:34px; border-radius:50%; border:none;
-    background:transparent; color: var(--ink-soft); cursor:pointer; font-size:16px;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .library-item-edit:active{ background: var(--anchor-bg); }
-  .det-preg-row{
-    display:flex; align-items:center; gap:8px; background: var(--card-bg);
-    border:1px solid var(--rule); border-radius:12px; padding:8px 12px; margin-bottom:6px; font-size:14px;
-  }
-  .det-preg-row span{ flex:1; min-width:0; }
-  .det-preg-row button{ border:none; background:transparent; color: var(--ink-soft); cursor:pointer; font-size:16px; }
-  .det-vazio{ font-size:13px; color: var(--ink-soft); font-style:italic; margin-bottom:8px; }
-  .det-add{ display:flex; gap:8px; flex-wrap:wrap; margin: 8px 0 12px; }
-  .det-add input{
-    font-family: inherit; font-size:14.5px; padding:10px 12px; border-radius:12px;
-    border:1px solid var(--rule); background: var(--card-bg); color: var(--ink);
-  }
-  .det-add input[type="text"]{ flex:1; min-width:160px; }
-
   /* ---------- TOC MODAL ---------- */
   .toc-overlay{
     position: fixed; inset:0; background: rgba(20,18,35,.45);
@@ -822,9 +695,6 @@
       <button data-source="exemplo" class="active">📖 Sermão de Exemplo</button>
       <button data-source="custom" id="customSourceBtn" disabled>✍️ Meu Sermão</button>
       <button id="saveLibraryBtn" disabled title="Salvar este sermão na Biblioteca">💾 Salvar na Biblioteca</button>
-      <button id="extrasBtn" title="Gerar materiais extras e exportar o sermão">📄 Materiais e exportar</button>
-      <button id="editBtn" title="Editar o texto do sermão na tela">✏️ Editar</button>
-      <button id="trocarBtn" title="Trocar uma palavra ou frase em todos os modos">🔎 Substituir em tudo</button>
     </div>
 
     <h1 class="title" id="mainTitle">Quando o Filho do Homem Vier,<br>Achará Fé na Terra?</h1>
@@ -851,108 +721,12 @@
         <button class="lex-modal-close" id="inputClose">✕</button>
       </div>
       <div class="input-hint">Cole abaixo o <strong>link do YouTube</strong> da pregação (o vídeo precisa ser público) ou o texto bruto do sermão. Ao processar, o app usa o Gemini para gerar automaticamente as versões Exegética, de Leitura e de Púlpito (na primeira vez, vai pedir sua chave de API do Gemini). Com um link, o Gemini assiste ao vídeo e pode levar alguns minutos. Com texto colado, se a IA não responder, uma estrutura básica é gerada mesmo assim.</div>
-      <div class="input-options">
-        <label>Duração da pregação
-          <select id="durSel">
-            <option value="20">20 minutos</option>
-            <option value="30" selected>30 minutos</option>
-            <option value="40">40 minutos</option>
-          </select>
-        </label>
-        <label>Público / ocasião
-          <select id="pubSel">
-            <option value="domingo" selected>Culto de domingo</option>
-            <option value="jovens">Jovens e adolescentes</option>
-            <option value="estudo">Estudo bíblico</option>
-            <option value="grupos">Pequenos grupos</option>
-            <option value="evangelistico">Culto evangelístico</option>
-            <option value="familias">Casais e famílias</option>
-          </select>
-        </label>
-      </div>
       <textarea id="sermonInput" placeholder="Cole aqui o link do YouTube ou o texto do seu sermão..."></textarea>
       <div class="input-error" id="inputError"></div>
       <div class="input-actions">
-        <div class="input-spinner" id="inputSpinner"><span class="spin"></span> <span id="spinnerTxt">Processando sermão...</span></div>
+        <div class="input-spinner" id="inputSpinner"><span class="spin"></span> Processando sermão...</div>
         <button class="btn-secondary" id="inputCancel">Cancelar</button>
         <button class="btn-primary" id="processBtn">Processar Sermão</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="edit-bar" id="editBar">
-    <div class="edit-bar-txt" id="editBarTxt"></div>
-    <div class="edit-bar-btns">
-      <button class="btn-secondary" id="editCancel">Cancelar</button>
-      <button class="btn-primary" id="editSave">Salvar edição</button>
-    </div>
-  </div>
-
-  <div class="input-overlay" id="trocarOverlay">
-    <div class="input-modal">
-      <div class="input-modal-head">
-        <div class="input-modal-title">Substituir em tudo</div>
-        <button class="lex-modal-close" id="trocarClose">✕</button>
-      </div>
-      <div class="extras-scroll">
-        <div class="input-hint">Troca uma palavra ou frase nos três modos (Exegético, Leitura e Púlpito) e no título deste sermão, de uma vez. Útil para corrigir um nome ou um termo que se repete.</div>
-        <div class="input-options" style="flex-direction:column;">
-          <label>Localizar <input type="text" id="trocarDe" autocomplete="off"></label>
-          <label>Substituir por <input type="text" id="trocarPara" autocomplete="off"></label>
-          <label class="check"><input type="checkbox" id="trocarCaixa"> Ignorar maiúsculas e minúsculas</label>
-        </div>
-        <div class="input-error" id="trocarMsg"></div>
-        <div class="input-actions">
-          <button class="btn-secondary" id="trocarFechar">Fechar</button>
-          <button class="btn-primary" id="trocarFazer">Substituir em tudo</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="input-overlay" id="extrasOverlay">
-    <div class="input-modal">
-      <div class="input-modal-head">
-        <div class="input-modal-title" id="extrasTitulo">Materiais e exportação</div>
-        <button class="lex-modal-close" id="extrasClose">✕</button>
-      </div>
-      <div class="extras-scroll">
-
-        <div id="extrasMenu">
-          <div class="input-error" id="extrasErro"></div>
-          <div class="extras-section-title">Gerar a partir deste sermão</div>
-          <button class="extra-btn" data-extra="grupos"><strong>Perguntas para Pequenos Grupos</strong><span>Quebra-gelo, perguntas por ponto, desafio da semana e oração</span></button>
-          <button class="extra-btn" data-extra="devocional"><strong>Devocional curto</strong><span>Leitura de 3 minutos para enviar durante a semana</span></button>
-          <button class="extra-btn" data-extra="boletim"><strong>Resumo para o boletim</strong><span>Texto curto com os pontos principais e uma frase para levar para casa</span></button>
-          <button class="extra-btn" data-extra="slides"><strong>Roteiro de slides</strong><span>10 a 14 slides com texto curto e sugestão visual</span></button>
-
-          <div class="extras-section-title">Exportar o manuscrito completo</div>
-          <div class="extras-actions">
-            <button class="btn-secondary" id="expCopiar">Copiar texto</button>
-            <button class="btn-secondary" id="expWord">Baixar Word</button>
-            <button class="btn-secondary" id="expPdf">Imprimir / PDF</button>
-          </div>
-          <div class="input-hint">O manuscrito sai com o texto do modo Leitura (abertura, três pontos, conclusão e palavra final). Para PDF, escolha "Salvar como PDF" na janela de impressão.</div>
-        </div>
-
-        <div id="extrasCarregando" class="extras-carregando" style="display:none;">
-          <div class="input-spinner show"><span class="spin"></span> <span id="extrasSpinnerTxt">Gerando...</span></div>
-        </div>
-
-        <div id="extrasResultado" style="display:none;">
-          <textarea id="extrasTexto" class="extras-textarea"></textarea>
-          <div class="extras-actions">
-            <button class="btn-secondary" id="resCopiar">Copiar</button>
-            <button class="btn-secondary" id="resWord">Baixar Word</button>
-            <button class="btn-secondary" id="resPdf">Imprimir / PDF</button>
-          </div>
-          <div class="extras-actions">
-            <button class="btn-secondary" id="resVoltar">← Voltar</button>
-            <button class="btn-primary" id="resRefazer">Gerar de novo</button>
-          </div>
-          <div class="input-hint">Você pode editar o texto acima antes de copiar ou exportar. Revise antes de usar: é um rascunho feito por IA.</div>
-        </div>
-
       </div>
     </div>
   </div>
@@ -963,48 +737,8 @@
         <div class="input-modal-title">📚 Biblioteca de Sermões</div>
         <button class="lex-modal-close" id="libraryClose">✕</button>
       </div>
-      <div class="input-hint">Toque em um sermão para abrir, em 📝 para registrar série, pregações e notas, ou na lixeira para remover.</div>
-      <input type="search" class="lib-search" id="libBusca" placeholder="Buscar por título, texto bíblico, série, local ou nota" autocomplete="off">
-      <div class="lib-chips">
-        <button class="lib-chip active" data-filtro="todos">Todos</button>
-        <button class="lib-chip" data-filtro="pregados">Já preguei</button>
-        <button class="lib-chip" data-filtro="novos">Ainda não preguei</button>
-      </div>
+      <div class="input-hint">Sermões salvos ficam disponíveis aqui entre sessões. Toque em um deles para abrir, ou no ícone de lixeira para remover.</div>
       <div id="libraryList" class="library-list"></div>
-    </div>
-  </div>
-
-  <div class="input-overlay" id="detOverlay" style="z-index:130;">
-    <div class="input-modal">
-      <div class="input-modal-head">
-        <div class="input-modal-title" id="detTitulo">Detalhes do sermão</div>
-        <button class="lex-modal-close" id="detClose">✕</button>
-      </div>
-      <div class="extras-scroll">
-        <div class="input-options" style="flex-direction:column;">
-          <label>Série ou tema (opcional)
-            <input type="text" id="detSerie" list="detSeriesLista" maxlength="60" placeholder="Ex.: Carta aos Filipenses" autocomplete="off">
-          </label>
-          <datalist id="detSeriesLista"></datalist>
-        </div>
-
-        <div class="extras-section-title">Onde e quando preguei</div>
-        <div id="detPregacoes"></div>
-        <div class="det-add">
-          <input type="date" id="detData">
-          <input type="text" id="detLocal" maxlength="80" placeholder="Igreja ou evento (opcional)" autocomplete="off">
-          <button class="btn-secondary" id="detAdd">Adicionar</button>
-        </div>
-
-        <div class="extras-section-title">Minha nota depois de pregar</div>
-        <textarea class="extras-textarea" id="detNota" style="min-height:120px;" maxlength="2000" placeholder="Ex.: o ponto 2 funcionou bem; encurtar a ilustração do ponto 1..."></textarea>
-
-        <div class="input-error" id="detMsg"></div>
-        <div class="input-actions">
-          <button class="btn-secondary" id="detCancelar">Cancelar</button>
-          <button class="btn-primary" id="detSalvar">Salvar</button>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -1581,9 +1315,6 @@
   customContent = MUSTARD_CONTENT;
   enableCustomSourceButton();
   let customRaw = '';             // último texto colado, para reabrir o modal em modo de edição
-  let customData = null;          // dados estruturados do "Meu Sermão" (onde ficam guardadas as edições)
-  let activeLibraryId = null;     // id do sermão aberto pela Biblioteca (null = "Meu Sermão")
-  let editando = false;           // true enquanto o sermão está em modo de edição
 
   const ORIGINAL_TITLE_HTML = document.getElementById('mainTitle').innerHTML;
   const ORIGINAL_CITATION_TEXT = document.getElementById('mainCitation').textContent;
@@ -1593,24 +1324,6 @@
     return String(s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;')
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
-  // Divide um texto longo em parágrafos (separados por linha em branco ou quebra de linha)
-  // e devolve cada um em seu próprio <p>. 'tail' é HTML opcional (ex.: botão do termo
-  // original) colocado no fim do último parágrafo.
-  function paras(texto, tail, cls){
-    const c = cls || 'body-text';
-    const partes = String(texto || '').split(/\n+/).map(x => x.trim()).filter(Boolean);
-    if(!partes.length) return tail ? `<p class="${c}">${tail}</p>` : '';
-    return partes.map((x, i) => `<p class="${c}">${esc(x)}${(i === partes.length - 1 && tail) ? tail : ''}</p>`).join('');
-  }
-
-  // Caixa "Conferir antes de pregar": lista de nomes, datas, fatos e citações a verificar
-  function conferirBox(lista){
-    const itens = (Array.isArray(lista) ? lista : (lista ? [lista] : []))
-      .map(x => String(x || '').trim()).filter(Boolean);
-    if(!itens.length) return '';
-    return `<div class="conferir-box"><div class="conferir-title">Conferir antes de pregar</div><ul>${itens.map(i => `<li>${esc(i)}</li>`).join('')}</ul></div>`;
   }
 
   function getContent(mode){
@@ -1641,24 +1354,6 @@
     attachLexChips();
   }
 
-  // ---- Tela sempre acesa nos modos Leitura e Púlpito ----
-  let wakeLock = null;
-  async function atualizarTelaAcesa(){
-    const modo = document.body.getAttribute('data-mode');
-    const querAcesa = (modo === 'pulpito' || modo === 'leitura');
-    try{
-      if(querAcesa && !wakeLock && 'wakeLock' in navigator && document.visibilityState === 'visible'){
-        wakeLock = await navigator.wakeLock.request('screen');
-        wakeLock.addEventListener('release', () => { wakeLock = null; });
-      }else if(!querAcesa && wakeLock){
-        await wakeLock.release();
-        wakeLock = null;
-      }
-    }catch(e){ wakeLock = null; }
-  }
-  // Ao voltar para o app (ex.: depois de bloquear o celular), pede a tela acesa de novo
-  document.addEventListener('visibilitychange', atualizarTelaAcesa);
-
   // ---- Modos de Exibição ----
   let savedFontSize = null;
   const modeButtons = document.querySelectorAll('#modeSwitch button');
@@ -1669,7 +1364,6 @@
       const mode = btn.getAttribute('data-mode');
       document.body.setAttribute('data-mode', mode);
       renderSermon(mode);
-      atualizarTelaAcesa();
 
       if(mode === 'pulpito'){
         if(savedFontSize === null) savedFontSize = fontSize;
@@ -1833,7 +1527,7 @@
   // Constrói {exegetico, leitura, pulpito, toc, titulo, citacao, lexEntries}
   // a partir do JSON compacto retornado pela API.
   function buildContentFromData(data){
-    const divisoesRaw = Array.isArray(data.divisoes) ? data.divisoes.slice(0, 5) : [];
+    const divisoesRaw = Array.isArray(data.divisoes) ? data.divisoes.slice(0, 4) : [];
     const lexEntries = {};
 
     const divisoes = divisoesRaw.map((d, i) => {
@@ -1862,7 +1556,7 @@
       <div class="division-card" id="nav-abertura">
         <div class="division-head"><div class="division-num alt">A</div><h2 class="division-title">Abertura</h2></div>
         <hr class="card-rule">
-        ${paras(data.abertura)}
+        <p class="body-text">${esc(data.abertura)}</p>
       </div>
       <div class="section-header" id="nav-desenvolvimento"><span class="flame">🔥</span><span class="label">Desenvolvimento Homilético</span></div>
       <hr class="section-rule">
@@ -1871,40 +1565,36 @@
           <div class="division-head"><div class="division-num">${i + 1}</div><h2 class="division-title">${esc(d.tituloSafe)}${d.versiculos ? ' (' + esc(d.versiculos) + ')' : ''}</h2></div>
           <hr class="card-rule">
           <div class="exposicao-label">Exposição do Texto:</div>
-          ${paras(d.exposicao, d.chipHtml)}
-          ${d.ilustracao ? `<div class="ilustracao-box"><span class="tag-label">Ilustração</span>${paras(d.ilustracao)}</div>` : ''}
-          ${d.aplicacao ? `<div class="apelo-box"><span class="tag-label">Aplicação para hoje</span>${paras(d.aplicacao)}</div>` : ''}
+          <p class="body-text">${esc(d.exposicao)}${d.chipHtml}</p>
         </div>
       `).join('')}
       <div class="division-card" id="nav-conclusao">
         <div class="division-head"><div class="division-num alt">C</div><h2 class="division-title">Conclusão</h2></div>
         <hr class="card-rule">
-        ${paras(data.conclusao && data.conclusao.texto)}
+        <p class="body-text">${esc(data.conclusao && data.conclusao.texto)}</p>
       </div>
       <div class="division-card" id="nav-final">
         <div class="division-head"><div class="division-num alt">P</div><h2 class="division-title">Palavra Final</h2></div>
         <hr class="card-rule">
         <p class="closing-q">${esc(data.apelo_final)}</p>
       </div>
-      ${conferirBox(data.conferir)}
     `;
 
     const leitura = `
       <p class="essay-open">${esc(data.proposicao)}</p>
-      <div class="essay-block" id="nav-abertura">${paras(data.abertura)}</div>
+      <div class="essay-block" id="nav-abertura"><p class="body-text">${esc(data.abertura)}</p></div>
       <div class="essay-divider">· · ·</div>
-      ${divisoes.map((d, i) => `<div class="essay-block" id="nav-div${i + 1}">${paras(d.leitura)}</div>${i < divisoes.length - 1 ? '<div class="essay-divider">· · ·</div>' : ''}`).join('')}
+      ${divisoes.map((d, i) => `<div class="essay-block" id="nav-div${i + 1}"><p class="body-text">${esc(d.leitura)}</p></div>${i < divisoes.length - 1 ? '<div class="essay-divider">· · ·</div>' : ''}`).join('')}
       <div class="essay-divider">· · ·</div>
-      <div class="essay-block" id="nav-conclusao">${paras(data.conclusao && data.conclusao.leitura)}</div>
+      <div class="essay-block" id="nav-conclusao"><p class="body-text">${esc(data.conclusao && data.conclusao.leitura)}</p></div>
       <div class="essay-block" id="nav-final"><p class="closing-q">${esc(data.apelo_final)}</p></div>
-      ${conferirBox(data.conferir)}
     `;
 
     const pulpito = `
       <div class="division-card" id="nav-abertura">
         <div class="division-head"><div class="division-num alt">A</div><h2 class="division-title">Abertura</h2></div>
         <hr class="card-rule">
-        ${paras(data.abertura, ' <span class="pause">(pausa)</span>')}
+        <p class="body-text">${esc(data.abertura)} <span class="pause">(pausa)</span></p>
       </div>
       <div class="section-header" id="nav-desenvolvimento"><span class="flame">🔥</span><span class="label">Desenvolvimento</span></div>
       <hr class="section-rule">
@@ -1912,13 +1602,13 @@
         <div class="division-card" id="nav-div${i + 1}">
           <div class="division-head"><div class="division-num">${i + 1}</div><h2 class="division-title">${esc(d.tituloSafe)}</h2></div>
           <hr class="card-rule">
-          ${paras(d.pulpito)}
+          <p class="body-text">${esc(d.pulpito)}</p>
         </div>
       `).join('')}
       <div class="division-card" id="nav-conclusao">
         <div class="division-head"><div class="division-num alt">C</div><h2 class="division-title">Conclusão</h2></div>
         <hr class="card-rule">
-        <div class="apelo-box"><span class="tag-label">Apelo</span>${paras(data.conclusao && data.conclusao.pulpito)}</div>
+        <div class="apelo-box"><span class="tag-label">Apelo</span><p class="body-text" style="margin-bottom:0;">${esc(data.conclusao && data.conclusao.pulpito)}</p></div>
       </div>
       <div class="division-card" id="nav-final">
         <div class="division-head"><div class="division-num alt">P</div><h2 class="division-title">Palavra Final</h2></div>
@@ -2018,9 +1708,7 @@
       const registro = await sbCarregarRegistro();
       if(registro && registro.meu_sermao_data){
         const parsed = JSON.parse(registro.meu_sermao_data);
-        customContent = aplicarEdicoesSalvas(buildContentFromData(parsed), parsed);
-        customData = parsed;
-        activeLibraryId = null;
+        customContent = buildContentFromData(parsed);
         customRaw = registro.meu_sermao_raw || '';
         Object.assign(lexData, customContent.lexEntries || {});
         enableCustomSourceButton();
@@ -2082,83 +1770,28 @@
     }catch(e){ return ''; }
   }
 
-  let libFiltro = 'todos';
-  let libBusca = '';
-  function normalizarTexto(t){
-    return String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  }
-  function dataIsoParaDate(iso){
-    const p = String(iso || '').split('-');
-    if(p.length !== 3) return null;
-    const d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
-    return isNaN(d.getTime()) ? null : d;
-  }
-  function formatarDataIso(iso){
-    const d = dataIsoParaDate(iso);
-    return d ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
-  }
-  // Pregações registradas de um sermão, da mais recente para a mais antiga
-  function pregacoesDe(entry){
-    return Array.isArray(entry.pregacoes)
-      ? entry.pregacoes.filter(x => x && x.data).slice().sort((a, b) => String(b.data).localeCompare(String(a.data)))
-      : [];
-  }
-  function entradaCombinaComBusca(entry, termo){
-    if(!termo) return true;
-    const campos = [entry.titulo, entry.citacao, entry.serie, entry.nota].concat(pregacoesDe(entry).map(x => x.local));
-    return normalizarTexto(campos.join(' ')).indexOf(termo) >= 0;
-  }
-
   function renderLibraryList(){
     const listEl = document.getElementById('libraryList');
     if(libraryEntries.length === 0){
       listEl.innerHTML = '<div class="library-empty">Nenhum sermão salvo ainda.<br>Processe um sermão e toque em "Salvar na Biblioteca".</div>';
       return;
     }
-    const termo = normalizarTexto(libBusca.trim());
-    const lista = libraryEntries.filter(e => {
-      const jaPregou = pregacoesDe(e).length > 0;
-      if(libFiltro === 'pregados' && !jaPregou) return false;
-      if(libFiltro === 'novos' && jaPregou) return false;
-      return entradaCombinaComBusca(e, termo);
-    });
-    if(lista.length === 0){
-      listEl.innerHTML = '<div class="library-empty">Nenhum sermão encontrado com esse filtro.</div>';
-      return;
-    }
-    listEl.innerHTML = lista.map(entry => {
-      const preg = pregacoesDe(entry);
-      const tags = [];
-      if(entry.serie) tags.push('<span class="lib-tag">' + esc(entry.serie) + '</span>');
-      if(preg.length){
-        const ult = preg[0];
-        tags.push('<span class="lib-tag ok">✓ Pregado ' + preg.length + 'x · ' + esc(formatarDataIso(ult.data)) + (ult.local ? ' · ' + esc(ult.local) : '') + '</span>');
-      }
-      return `
-      <div class="library-item" data-open="${esc(entry.id)}">
+    listEl.innerHTML = libraryEntries.map(entry => `
+      <div class="library-item" data-open="${entry.id}">
         <div class="library-item-main">
           <div class="library-item-title">${esc(entry.titulo || 'Sermão sem título')}</div>
           <div class="library-item-sub">${esc(entry.citacao || '')}${entry.citacao ? ' · ' : ''}salvo em ${formatSavedDate(entry.savedAt)}</div>
-          ${tags.length ? '<div class="library-item-tags">' + tags.join('') + '</div>' : ''}
-          ${entry.nota ? '<div class="library-item-nota">📝 ' + esc(String(entry.nota).replace(/\s+/g, ' ').slice(0, 110)) + '</div>' : ''}
         </div>
-        <button class="library-item-edit" data-details="${esc(entry.id)}" title="Série, pregações e nota">📝</button>
-        <button class="library-item-delete" data-delete="${esc(entry.id)}" title="Excluir">
+        <button class="library-item-delete" data-delete="${entry.id}" title="Excluir">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13"/></svg>
         </button>
-      </div>`;
-    }).join('');
+      </div>
+    `).join('');
 
     listEl.querySelectorAll('[data-open]').forEach(row => {
       row.addEventListener('click', (e) => {
-        if(e.target.closest('[data-delete]') || e.target.closest('[data-details]')) return;
+        if(e.target.closest('[data-delete]')) return;
         loadLibraryEntry(row.getAttribute('data-open'));
-      });
-    });
-    listEl.querySelectorAll('[data-details]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        abrirDetalhes(btn.getAttribute('data-details'));
       });
     });
     listEl.querySelectorAll('[data-delete]').forEach(btn => {
@@ -2173,8 +1806,6 @@
     const entry = libraryEntries.find(e => e.id === id);
     if(!entry) return;
     customContent = entry.content;
-    customData = null;
-    activeLibraryId = id;
     customRaw = entry.raw || '';
     activeSermon = 'custom';
     enableCustomSourceButton();
@@ -2316,8 +1947,6 @@
   // Aplica um objeto de dados (vindo da API ou do fallback local) ao app
   async function applyProcessedData(data, raw){
     customContent = buildContentFromData(data);
-    customData = data;
-    activeLibraryId = null;
     customRaw = raw;
     activeSermon = 'custom';
     Object.assign(lexData, customContent.lexEntries || {});
@@ -2331,29 +1960,13 @@
     renderSermon(document.body.getAttribute('data-mode') || 'exegetico');
   }
 
-  // Mostra uma mensagem de andamento ao lado do círculo giratório
-  function mostrarStatus(texto){
-    ['spinnerTxt', 'extrasSpinnerTxt'].forEach(id => {
-      const el = document.getElementById(id);
-      if(el) el.textContent = texto;
-    });
-  }
-  // Repete a chamada à IA quando o Gemini avisa de sobrecarga (503), limite (429)
-  // ou demora (502/504), esperando cada vez mais, até 6 tentativas no total.
+    // Repete a chamada à IA quando o Gemini avisa de sobrecarga (503) ou limite (429)
   async function fetchComRetry(url, options){
-    const esperas = [5000, 10000, 20000, 30000, 45000];
-    let resp = null;
-    for(let t = 0; t <= esperas.length; t++){
-      try{
-        resp = await fetch(url, options);
-      }catch(e){
-        if(t === esperas.length) throw e; // falha de rede persistente
-        resp = null;
-      }
-      if(resp && ![429, 502, 503, 504].includes(resp.status)) return resp;
-      if(t === esperas.length) return resp;
-      mostrarStatus('O Gemini está ocupado. Tentando de novo (' + (t + 2) + ' de ' + (esperas.length + 1) + ')...');
-      await new Promise(r => setTimeout(r, esperas[t]));
+    let resp;
+    for(let tentativa = 0; tentativa < 4; tentativa++){
+      resp = await fetch(url, options);
+      if((resp.status !== 503 && resp.status !== 429) || tentativa === 3) return resp;
+      await new Promise(r => setTimeout(r, 4000 * (tentativa + 1)));
     }
     return resp;
   }
@@ -2425,7 +2038,6 @@
       return;
     }
 
-    if(customData && customData._editado && !window.confirm('O "Meu Sermão" atual tem edições salvas. Processar de novo vai substituí-las por um sermão novo. Deseja continuar?')) return;
     const videoUrl = parseYouTubeUrl(raw);
 
     processBtn.disabled = true;
@@ -2435,50 +2047,37 @@
       const fonteDescricao = videoUrl
         ? 'assistir ao vídeo anexo (uma pregação ou culto no YouTube) e ouvir o áudio'
         : 'receber uma transcrição bruta (YouTube/áudio)';
-      // Duração e público escolhidos no modal (guardados para a próxima vez)
-      const duracao = Number(document.getElementById('durSel').value) || 30;
-      const PUBLICOS = {
-        domingo: 'culto de domingo (igreja local, público misto de todas as idades)',
-        jovens: 'jovens e adolescentes (linguagem próxima, exemplos do dia a dia deles, sem perder a profundidade)',
-        estudo: 'estudo bíblico ou escola bíblica (tom mais didático, com mais exegese e explicação do texto)',
-        grupos: 'pequenos grupos (tom mais conversacional, com espaço para perguntas e partilha)',
-        evangelistico: 'culto evangelístico (foco em quem ainda não conhece o Evangelho, com explicação clara da salvação pela graça)',
-        familias: 'casais e famílias (aplicações para o lar, o casamento e a criação dos filhos)'
-      };
-      const publicoTxt = PUBLICOS[document.getElementById('pubSel').value] || PUBLICOS.domingo;
-      const fator = duracao / 30;
-      const fmtNum = n => n.toLocaleString('pt-BR');
-      const faixa = base => fmtNum(Math.round(base * fator * 0.88 / 10) * 10) + ' a ' + fmtNum(Math.round(base * fator * 1.12 / 10) * 10);
-      const palavrasTotal = faixa(3150);
-      const minPorPonto = Math.round(duracao * 0.26);
-      const prompt = `Você é um homileta e exegeta experiente, de tradição batista histórica (fidelidade às Escrituras, salvação pela graça mediante a fé, centralidade de Cristo e do Evangelho). Seu trabalho é ${fonteDescricao} e transformar o conteúdo em um sermão COMPLETO e aprofundado, pregável em cerca de ${duracao} minutos (aproximadamente ${palavrasTotal} palavras de fala) — nunca um resumo.
-Sua resposta DEVE ser estritamente um JSON válido, completo e bem formado (todas as chaves fechadas), sem markdown, sem crases, sem texto antes ou depois. Dentro dos textos, separe os parágrafos com uma linha em branco entre eles.
+      const prompt = `Você é um homileta e exegeta especialista. Seu trabalho é ${fonteDescricao} e atuar como um filtro inteligente, sintetizando e lapidando o conteúdo em uma versão AMPLIADA e aprofundada — não um resumo raso.
+Sua resposta DEVE ser estritamente um JSON válido, completo e bem formado (todas as chaves fechadas), sem markdown, sem crases, sem texto antes ou depois.
 
-Diretrizes:
-1. DEPURAR: ignore marcadores de tempo, ruídos, saudações e dinâmicas de palco.
-2. ESTRUTURA: o sermão deve ter EXATAMENTE 3 divisões, para facilitar a assimilação pelo ouvinte. Se a pregação tiver 3 pontos, siga-os. Se tiver apenas 2, desenvolva um terceiro ponto a partir do mesmo texto bíblico e da linha de pensamento do pregador, de modo que os três formem uma progressão natural (por exemplo: o que o texto diz, por que isso importa, como viver isso). Se tiver 4 ou mais, agrupe-os em 3. Desenvolva as 3 divisões por completo, uma a uma. Nunca pare no meio nem omita uma divisão.
-3. FIDELIDADE: parta do que o pregador disse e preserve sua mensagem e sua posição teológica. Você pode e deve ampliar com contexto histórico-cultural, passagens paralelas e aplicações, sem contradizer o pregador.
-4. EXEGESE: dê o contexto histórico e literário do texto, mostre o fio do argumento e traga 1 termo-chave original (Grego/Hebraico) por divisão, com código de Strong. Interprete a Escritura com a Escritura: cite 2 a 3 passagens paralelas (com referência) por divisão. Seja prudente com afirmações gramaticais debatidas entre os estudiosos (por exemplo, não afirme que um imperativo presente com negativa sempre significa parar uma ação já em curso); quando houver dúvida, diga com cautela.
-5. APLICAÇÃO PARA OS DIAS DE HOJE: cada divisão deve ter aplicações concretas e específicas para o cotidiano do ouvinte brasileiro atual (por exemplo: excesso de notícias e redes sociais, pressão financeira, família, trabalho, saúde emocional, solidão, vida em comunidade), sem modismos e sem política partidária. As aplicações devem apontar para Cristo e o Evangelho, e não cair em moralismo.
-6. HONESTIDADE: não invente estatísticas, pesquisas, notícias, citações de autores nem fatos históricos de que você não tenha certeza. NÃO cite nomes de pessoas reais nem casos específicos de notícias (acidentes, crimes, tragédias, celebridades), a menos que o nome e o caso estejam na transcrição ou no vídeo; nesse caso, use apenas o que o pregador disse. As ilustrações devem ser cenas anônimas do cotidiano ("um pai de família...", "uma jovem..."), passagens bíblicas ou episódios muito conhecidos da história da igreja.
-7. IDIOMA: escreva TUDO em português do Brasil. Não misture palavras em inglês; use o grego/hebraico apenas no campo do termo original.
-8. TAMANHOS (são metas reais para um sermão de ${duracao} minutos — preencha cada campo, não economize):
-   - proposicao: 1 frase completa e substancial.
-   - abertura: ${faixa(400)} palavras (contexto do texto, uma ilustração de entrada e a ponte para o primeiro ponto).
-   - Cada uma das 3 divisões:
-     • exposicao: ${faixa(300)} palavras, em 2 a 3 parágrafos, incluindo o termo original e as passagens paralelas.
-     • ilustracao: ${faixa(125)} palavras.
-     • aplicacao: ${faixa(200)} palavras, com 2 a 3 aplicações práticas (um parágrafo para cada).
-     • leitura: ${faixa(725)} palavras, em parágrafos, em texto contínuo e pregável, que reúna exposição, passagens paralelas, ilustração e aplicações, e termine com uma frase de transição para o próximo ponto.
-     • pulpito: roteiro de 6 a 10 linhas curtas, cada uma começando com "• ", e a primeira linha no formato "⏱ ~${minPorPonto} min". Inclua versículo-chave, termo original, ilustração, aplicações e âncoras de oratória como "(pausa)".
-   - conclusao.texto: ${faixa(350)} palavras; conclusao.leitura: ${faixa(400)} palavras; conclusao.pulpito: 5 a 8 linhas, cada uma começando com "• ".
-   - apelo_final: 1 a 2 frases de impacto, em forma de pergunta ou desafio pastoral, apontando para Cristo.
-9. PÚBLICO E OCASIÃO: este sermão será pregado para ${publicoTxt}. Adapte o vocabulário, os exemplos e as aplicações a esse público, sem perder a fidelidade ao texto bíblico.
-10. CONFERIR ANTES DE PREGAR: no campo "conferir", liste de 3 a 8 itens que o pregador deve verificar antes de subir ao púlpito: toda pessoa, data, número, episódio histórico, citação de autor ou afirmação factual usada na exposição ou nas ilustrações que não esteja claramente na fonte, além de afirmações técnicas de grego ou hebraico. Cada item deve ser uma frase curta dizendo o que conferir. Se nada exigir conferência, devolva um único item: "Conferir as referências bíblicas citadas."
+Diretrizes de Síntese e Lapidação:
+1. DEPURAR: Ignore completamente marcadores de tempo, ruídos, saudações e dinâmicas de palco.
+2. PROFUNDIDADE ACIMA DE TUDO: identifique de 3 a 5 divisões reais na estrutura do sermão (introdução, desenvolvimento, conclusão) e desenvolva TODAS elas por completo, com profundidade exegética e homilética real. Nunca pare no meio nem omita uma divisão. Prefira aprofundar cada divisão a resumi-la.
+3. AMPLIAR, NÃO RESUMIR: escreva de forma rica e substancial, desenvolvendo os argumentos, ilustrações e aplicações presentes na transcrição bruta — e, quando fizer sentido teologicamente, complemente com contexto histórico, cultural ou exegético relevante ao texto bíblico, sempre fiel à mensagem original do pregador.
+4. EXEGESE: mapeie o texto bíblico principal e identifique 1 termo-chave original (Grego/Hebraico) por divisão, com código de Strong, explicando seu significado e relevância para o ponto.
+5. ESTRUTURA DOS MODOS:
+   - Exegético: análise aprofundada de 1-2 parágrafos por divisão, com o termo no idioma original e sua aplicação exegética.
+   - Leitura: texto fluido e completo, em 3-4 parágrafos bem desenvolvidos por divisão.
+   - Púlpito: tópicos objetivos, frases de impacto e âncoras para oratória (ex: "(pausa)"), com espaço suficiente para uma exposição real ao vivo.
+6. LIMITES DE TAMANHO (amplos — use o espaço para aprofundar, não para economizar):
+   - Título e Proposição: 1 frase, mas completa e substancial.
+   - Abertura e Conclusão: até 300 palavras cada, desenvolvendo bem o contexto e o fechamento.
+   - Divisões: 3 a 5 divisões, todas completas e desenvolvidas em profundidade.
+7. TERMO-CHAVE DA PROPOSIÇÃO (léxico homilético): para estruturar o esboço, escolha o substantivo plural mais fiel à natureza do texto bíblico e à intenção de pregação, evitando repetições genéricas como apenas "aspectos" ou "pontos". Use o léxico abaixo:
+   a) EXPOSIÇÃO DOUTRINÁRIA (o que o texto ensina como absoluto): Verdades, Princípios, Fundamentos, Pilares, Doutrinas, Convicções, Atributos, Características, Marcas.
+   b) ANÁLISE TEXTUAL E DESCRITIVA (o que o texto revela ou desdobra): Aspectos, Facetas, Dimensões, Realidades, Elementos, Componentes, Evidências, Sinais, Contrastes.
+   c) CAUSA, EFEITO E PROPÓSITO (a lógica espiritual do texto): Fatores, Causas, Razões, Consequências, Resultados, Frutos, Benefícios, Bênçãos, Privilégios, Propósitos, Finalidades.
+   d) EXORTAÇÃO E APLICAÇÃO PRÁTICA (a resposta exigida pelo texto): Imperativos, Mandamentos, Responsabilidades, Deveres, Passos, Etapas, Movimentos, Atitudes, Posturas, Práticas, Disciplinas.
+   e) ALERTAS, CONFLITOS E CONSOLO PASTORAL (advertência ou cuidado da alma): Perigos, Armadilhas, Obstáculos, Sintomas, Recursos, Provisões, Remédios, Consolos, Esperanças, Promessas.
+   Regras de uso do léxico:
+   - Escolha apenas UM termo-chave dominante para todo o sermão, mantendo a unidade lógica da proposição.
+   - Alinhe o termo ao gênero literário e aos verbos principais do texto (ex.: textos com imperativos pedem "mandamentos", "atitudes" ou "passos"; textos indicativos sobre Deus pedem "verdades", "atributos" ou "provisões").
+   - A "proposicao" DEVE conter essa palavra-chave e vir antes dos tópicos principais; os títulos das divisões devem desenvolver exatamente essa proposição (ex.: "Três verdades sobre...", seguidas de uma divisão para cada verdade).
+   - Se o pregador do material original já anunciar um termo para os seus pontos, preserve-o e use o léxico apenas quando ele não houver anunciado nenhum.
 
 Formato JSON exato a preencher (respeite todas as chaves):
-{"titulo":"...","citacao_biblica_curta":"livro capítulo:versículos","proposicao":"...","abertura":"...","divisoes":[{"titulo":"...","versiculos":"...","exposicao":"...","termo_grego":{"palavra":"...","translit":"...","strong":"G____ ou H____","classe":"Verbo/Substantivo/Adjetivo","definicao":"(1 frase)","nota":"(1-2 frases)"},"ilustracao":"...","aplicacao":"...","leitura":"...","pulpito":"..."}],"conclusao":{"texto":"...","leitura":"...","pulpito":"..."},"apelo_final":"...","conferir":["..."]}
-Se não houver termo grego/hebraico relevante numa divisão, use "termo_grego":null. IMPORTANTE: o array "divisoes" deve conter EXATAMENTE 3 divisões, cada uma completa e com todos os campos preenchidos nos tamanhos pedidos — uma resposta rasa é pior que uma resposta longa e bem trabalhada.
+{"titulo":"...","citacao_biblica_curta":"livro capítulo:versículos","proposicao":"(1 frase completa, contendo o termo-chave escolhido do léxico)","abertura":"(até 300 palavras, contexto)","divisoes":[{"titulo":"...","versiculos":"...","exposicao":"(1-2 parágrafos desenvolvidos, com o termo original)","termo_grego":{"palavra":"...","translit":"...","strong":"G____ ou H____","classe":"Verbo/Substantivo/Adjetivo","definicao":"(1 frase)","nota":"(1-2 frases)"},"leitura":"(3-4 parágrafos bem desenvolvidos, tom de ensaio contínuo, sem marcadores orais)","pulpito":"(tópicos objetivos e frases de impacto, pode incluir (pausa) como âncora de oratória)"}],"conclusao":{"texto":"(até 300 palavras)","leitura":"(1-2 parágrafos)","pulpito":"(tópicos/frases de impacto)"},"apelo_final":"(1 frase de impacto, pergunta ou desafio pastoral)"}
+Se não houver termo grego/hebraico relevante numa divisão, use "termo_grego":null. IMPORTANTE: o array "divisoes" deve conter todas as divisões prometidas, cada uma completa e desenvolvida — uma resposta rasa é pior que uma resposta mais longa e bem trabalhada em cada campo.
 
 ${videoUrl
   ? 'Fonte: o vídeo anexo. Se for um culto completo, concentre-se apenas na pregação principal (ignore louvor, avisos, ofertas, oração e momentos fora da exposição). Baseie-se somente no que o pregador de fato diz no vídeo; não invente conteúdo que não esteja nele.'
@@ -2591,686 +2190,9 @@ ${raw.slice(0, 30000)}
     }finally{
       processBtn.disabled = false;
       inputSpinner.classList.remove('show');
-      mostrarStatus('Processando sermão...');
     }
   }
-
-  // =====================================================================
-  //  MATERIAIS EXTRAS (via Gemini) E EXPORTAÇÃO (Word / PDF / copiar)
-  // =====================================================================
-  const extrasOverlay = document.getElementById('extrasOverlay');
-  const extrasMenu = document.getElementById('extrasMenu');
-  const extrasCarregando = document.getElementById('extrasCarregando');
-  const extrasResultado = document.getElementById('extrasResultado');
-  const extrasTexto = document.getElementById('extrasTexto');
-  const extrasErro = document.getElementById('extrasErro');
-  const extrasTitulo = document.getElementById('extrasTitulo');
-  let extraAtual = null;     // { tipo, nome, sermao }
-
-  const EXTRAS = {
-    grupos: {
-      nome: 'Perguntas para Pequenos Grupos',
-      instrucao: 'um roteiro de discussão para PEQUENOS GRUPOS (encontro de 60 a 90 minutos), com estas seções, nesta ordem: QUEBRA-GELO (1 pergunta leve e fácil de responder, ligada ao tema); LEITURA BÍBLICA (a passagem principal e duas de apoio, só as referências); PERGUNTAS SOBRE O TEXTO (organizadas pelos 3 pontos do sermão; para cada ponto, escreva o título do ponto em CAIXA ALTA e depois 2 perguntas de observação ou compreensão do texto e 1 pergunta de aplicação pessoal, todas numeradas); DESAFIO DA SEMANA (1 ação prática simples); MOTIVOS DE ORAÇÃO (3 a 4 sugestões). As perguntas devem ser abertas (que não se respondem com sim ou não), curtas e acolhedoras para quem está começando na fé. Entre 400 e 600 palavras.'
-    },
-    devocional: {
-      nome: 'Devocional curto',
-      instrucao: 'um DEVOCIONAL CURTO de leitura em cerca de 3 minutos (250 a 350 palavras), para enviar por WhatsApp ou e-mail durante a semana, com: TÍTULO (em CAIXA ALTA); a referência do versículo-chave; uma reflexão pastoral e calorosa que resuma o coração do sermão; uma aplicação prática para o dia; e a seção ORAÇÃO (de 3 a 5 linhas). Tom pastoral, simples e encorajador, apontando para Cristo.'
-    },
-    boletim: {
-      nome: 'Resumo para o boletim',
-      instrucao: 'um RESUMO PARA O BOLETIM DA IGREJA com estas seções: TÍTULO DO SERMÃO; TEXTO BÍBLICO (só a referência); RESUMO (100 a 130 palavras, em um parágrafo, para quem não pôde ouvir a mensagem); PONTOS PRINCIPAIS (os 3 pontos, cada um em uma frase curta); PARA LEVAR PARA CASA (uma frase marcante). No total, até 220 palavras, em tom claro e acolhedor.'
-    },
-    slides: {
-      nome: 'Roteiro de slides',
-      instrucao: 'um ROTEIRO DE SLIDES para projetar durante a pregação, com 10 a 14 slides. Para cada slide use este formato: uma linha de título em CAIXA ALTA começando por "SLIDE 1 — " (com o número do slide) seguida de um título curto; depois 1 a 3 linhas de texto muito curtas (no máximo 12 palavras por linha) para aparecer na tela; e por fim uma linha começando por "Sugestão visual:" com uma ideia simples de imagem ou fundo. Inclua: slide de título (com o texto bíblico), slide da proposição central, um slide de abertura, 2 a 3 slides por ponto (título do ponto, referência bíblica com a frase-chave, e a aplicação), slide de conclusão e slide final com o apelo. Para versículos, coloque somente a referência (por exemplo, Marcos 8:34) e deixe o pregador inserir o texto bíblico na versão que preferir.'
-    }
-  };
-  const REGRAS_EXTRAS = 'REGRAS GERAIS: escreva tudo em português do Brasil, em texto simples (sem markdown: nada de asteriscos, #, tabelas ou negrito). Os títulos de seções devem ficar em CAIXA ALTA, sozinhos em uma linha. Não invente fatos, estatísticas, nomes de pessoas reais nem casos de notícias. Cite as passagens bíblicas apenas pela referência; não transcreva versículos. Seja fiel à mensagem do sermão e não acrescente doutrinas que ele não contém.';
-
-  // Converte um trecho de HTML em um elemento solto (para ler o texto dele)
-  function htmlParaElemento(html){
-    const d = document.createElement('div');
-    d.innerHTML = html || '';
-    return d;
-  }
-
-  // Lê o sermão que está na tela (exemplo ou "Meu Sermão") e monta o manuscrito em blocos
-  function lerSermonAtual(){
-    const raiz = htmlParaElemento(getContent('leitura'));
-    const exeg = htmlParaElemento(getContent('exegetico'));
-    const tituloHtml = (document.getElementById('mainTitle').innerHTML || '').replace(/<br\s*\/?>/gi, ' ');
-    const titulo = htmlParaElemento(tituloHtml).textContent.replace(/\s+/g, ' ').trim() || 'Sermão';
-    const citacao = (document.getElementById('mainCitation').textContent || '').trim();
-
-    const titulosPontos = {};
-    exeg.querySelectorAll('[id^="nav-div"]').forEach(card => {
-      const t = card.querySelector('.division-title');
-      if(t) titulosPontos[card.id] = t.textContent.replace(/\s+/g, ' ').trim();
-    });
-
-    const blocos = [];
-    blocos.push(['h1', titulo]);
-    blocos.push(['sub', 'Pregador: Pr. Fernando Veiga' + (citacao ? ' · ' + citacao : '')]);
-    Array.from(raiz.children).forEach(el => {
-      const cls = String(el.className || '');
-      if(/essay-divider/.test(cls)) return;
-      if(/essay-open/.test(cls)){ blocos.push(['quote', el.textContent.trim()]); return; }
-      if(/conferir-box/.test(cls)){
-        blocos.push(['h2', 'Conferir antes de pregar']);
-        el.querySelectorAll('li').forEach(li => blocos.push(['li', li.textContent.trim()]));
-        return;
-      }
-      if(/essay-block/.test(cls)){
-        const id = el.id || '';
-        if(id === 'nav-abertura') blocos.push(['h2', 'Abertura']);
-        else if(/^nav-div\d+$/.test(id)) blocos.push(['h2', titulosPontos[id] || ('Ponto ' + id.replace('nav-div', ''))]);
-        else if(id === 'nav-conclusao') blocos.push(['h2', 'Conclusão']);
-        else if(id === 'nav-final') blocos.push(['h2', 'Palavra Final']);
-        el.querySelectorAll('p').forEach(p => { const t = p.textContent.trim(); if(t) blocos.push(['p', t]); });
-        return;
-      }
-      const t = el.textContent.trim();
-      if(t) blocos.push(['p', t]);
-    });
-    return { titulo, citacao, blocos };
-  }
-
-  function blocosParaHtml(blocos){
-    return blocos.map(([tipo, texto]) => {
-      const e = esc(texto);
-      if(tipo === 'h1') return '<h1>' + e + '</h1>';
-      if(tipo === 'h2') return '<h2>' + e + '</h2>';
-      if(tipo === 'sub') return '<p class="sub">' + e + '</p>';
-      if(tipo === 'quote') return '<p class="quote">' + e + '</p>';
-      if(tipo === 'li') return '<p class="item">• ' + e + '</p>';
-      return '<p>' + e + '</p>';
-    }).join('\n');
-  }
-  function blocosParaTexto(blocos){
-    return blocos.map(([tipo, texto]) => {
-      if(tipo === 'h1' || tipo === 'h2') return texto.toUpperCase();
-      if(tipo === 'li') return '• ' + texto;
-      return texto;
-    }).join('\n\n');
-  }
-  // Texto do sermão entregue à IA nos materiais extras (sem a lista "Conferir antes de pregar")
-  function sermaoParaPrompt(sermao){
-    const out = [];
-    for(const [tipo, texto] of sermao.blocos){
-      if(tipo === 'h2' && texto === 'Conferir antes de pregar') break;
-      out.push(tipo === 'h2' ? ('\n' + texto.toUpperCase()) : texto);
-    }
-    return out.join('\n');
-  }
-  // Transforma o texto simples gerado pela IA em blocos (linha em CAIXA ALTA vira título)
-  function extraParaBlocos(nome, tituloSermao, texto){
-    const blocos = [['h1', nome], ['sub', 'Sermão: ' + tituloSermao]];
-    String(texto || '').split('\n').map(l => l.trim()).filter(Boolean).forEach(l => {
-      const ehTitulo = l.length >= 4 && l.length <= 90 && l === l.toUpperCase() && /[A-ZÀ-Ú]/.test(l);
-      if(ehTitulo) blocos.push(['h2', l]);
-      else if(/^[•\-\*]\s+/.test(l)) blocos.push(['li', l.replace(/^[•\-\*]\s+/, '')]);
-      else blocos.push(['p', l]);
-    });
-    return blocos;
-  }
-
-  const CSS_DOCUMENTO = "body{font-family:Georgia,'Times New Roman',serif;font-size:12.5pt;line-height:1.55;color:#111} h1{font-size:22pt;margin:0 0 4pt} h2{font-size:15pt;margin:18pt 0 6pt} p{margin:0 0 9pt} .sub{color:#555;font-style:italic;margin-bottom:14pt} .quote{font-style:italic;color:#333;margin:10pt 0 14pt} .item{margin:0 0 5pt 14pt}";
-
-  function baixarArquivo(blob, nome){
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = nome;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 1500);
-  }
-  // Word: um arquivo .doc em formato de página que o Word, o LibreOffice e o Google Docs abrem
-  function exportarWord(titulo, blocos){
-    const html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>' + esc(titulo) + '</title><style>' + CSS_DOCUMENTO + '</style></head><body>' + blocosParaHtml(blocos) + '</body></html>';
-    baixarArquivo(new Blob(['\ufeff', html], { type: 'application/msword' }), slugify(titulo) + '.doc');
-  }
-  // PDF: abre a janela de impressão com uma página limpa; ali se escolhe "Salvar como PDF"
-  function imprimirPdf(titulo, blocos){
-    const f = document.createElement('iframe');
-    f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
-    document.body.appendChild(f);
-    const d = f.contentWindow.document;
-    d.open();
-    d.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>' + esc(titulo) + '</title><style>@page{margin:2cm} ' + CSS_DOCUMENTO + '</style></head><body>' + blocosParaHtml(blocos) + '</body></html>');
-    d.close();
-    const tituloAntigo = document.title;
-    const limpar = () => { document.title = tituloAntigo; setTimeout(() => { if(f.parentNode) f.parentNode.removeChild(f); }, 500); };
-    setTimeout(() => {
-      try{
-        document.title = titulo;
-        f.contentWindow.addEventListener('afterprint', limpar);
-        f.contentWindow.focus();
-        f.contentWindow.print();
-      }catch(e){ limpar(); }
-      setTimeout(limpar, 120000);
-    }, 400);
-  }
-  async function copiarTexto(texto, botao){
-    let ok = false;
-    try{
-      await navigator.clipboard.writeText(texto);
-      ok = true;
-    }catch(e){
-      try{
-        const ta = document.createElement('textarea');
-        ta.value = texto;
-        ta.style.cssText = 'position:fixed;opacity:0;';
-        document.body.appendChild(ta);
-        ta.select();
-        ok = document.execCommand('copy');
-        document.body.removeChild(ta);
-      }catch(e2){ ok = false; }
-    }
-    if(botao){
-      const antes = botao.textContent;
-      botao.textContent = ok ? 'Copiado ✓' : 'Não foi possível copiar';
-      setTimeout(() => { botao.textContent = antes; }, 1800);
-    }
-  }
-
-  // Chamada simples ao Gemini que devolve texto (usada nos materiais extras)
-  async function gerarTextoGemini(pedido){
-    const apiKey = await ensureGeminiKey();
-    if(!apiKey) throw new Error('Sem chave de API do Gemini configurada. Toque no ícone de chave no topo para cadastrar.');
-    const response = await fetchComRetry(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${encodeURIComponent(apiKey)}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: pedido }] }],
-          generationConfig: { maxOutputTokens: 8000, thinkingConfig: { thinkingLevel: 'low' } }
-        })
-      }
-    );
-    if(!response.ok){
-      let msg = 'HTTP ' + response.status, status = '';
-      try{
-        const corpo = await response.json();
-        if(corpo && corpo.error){ msg = corpo.error.message || msg; status = corpo.error.status || ''; }
-      }catch(e){ /* corpo do erro não veio em JSON */ }
-      if(status === 'UNAUTHENTICATED' || /api key not valid|api_key_invalid/i.test(msg)) await clearGeminiKey();
-      throw new Error(msg);
-    }
-    const dados = await response.json();
-    const cand = (dados.candidates && dados.candidates[0]) || null;
-    const partes = (cand && cand.content && cand.content.parts) || [];
-    const texto = partes.map(p => p.text || '').join('').trim();
-    if(!texto){
-      const bloqueio = (dados.promptFeedback && dados.promptFeedback.blockReason) || '';
-      throw new Error(bloqueio ? ('O pedido foi bloqueado pelo Gemini (' + bloqueio + ').') : 'O Gemini não devolveu texto.');
-    }
-    return texto;
-  }
-  function mensagemErroGemini(msg){
-    const m = String(msg || '');
-    if(/high demand|overload|503|unavailable/i.test(m)) return 'O Gemini está sobrecarregado agora. Tente de novo em alguns minutos.';
-    if(/quota|rate|429|resource.?exhausted/i.test(m)) return 'O limite de uso do Gemini foi atingido. Tente de novo mais tarde.';
-    return m;
-  }
-
-  function mostrarVistaExtras(vista){
-    extrasMenu.style.display = vista === 'menu' ? '' : 'none';
-    extrasCarregando.style.display = vista === 'carregando' ? '' : 'none';
-    extrasResultado.style.display = vista === 'resultado' ? '' : 'none';
-    extrasTitulo.textContent = (vista === 'resultado' && extraAtual) ? extraAtual.nome : 'Materiais e exportação';
-  }
-  async function gerarExtra(tipo){
-    const cfg = EXTRAS[tipo];
-    if(!cfg) return;
-    extrasErro.classList.remove('show');
-    extrasErro.textContent = '';
-    mostrarVistaExtras('carregando');
-    mostrarStatus('Gerando: ' + cfg.nome + '...');
-    try{
-      const sermao = lerSermonAtual();
-      const pedido = 'Você é um pastor e redator ministerial de tradição batista histórica (fidelidade às Escrituras, salvação pela graça mediante a fé, centralidade de Cristo e do Evangelho). Com base no sermão abaixo, escreva ' + cfg.instrucao + '\n\n' + REGRAS_EXTRAS + '\n\nSERMÃO (entre as linhas de traços):\n-----\n' + sermaoParaPrompt(sermao).slice(0, 24000) + '\n-----';
-      const texto = await gerarTextoGemini(pedido);
-      extraAtual = { tipo: tipo, nome: cfg.nome, sermao: sermao.titulo };
-      extrasTexto.value = texto;
-      mostrarVistaExtras('resultado');
-    }catch(err){
-      console.error('Erro ao gerar material extra:', err);
-      mostrarVistaExtras('menu');
-      extrasErro.textContent = 'Não foi possível gerar agora: ' + mensagemErroGemini(err && err.message);
-      extrasErro.classList.add('show');
-    }finally{
-      mostrarStatus('Processando sermão...');
-    }
-  }
-
-  document.getElementById('extrasBtn').addEventListener('click', () => {
-    extrasErro.classList.remove('show');
-    extrasErro.textContent = '';
-    mostrarVistaExtras('menu');
-    extrasOverlay.classList.add('open');
-  });
-  document.getElementById('extrasClose').addEventListener('click', () => extrasOverlay.classList.remove('open'));
-  document.querySelectorAll('.extra-btn').forEach(b => {
-    b.addEventListener('click', () => gerarExtra(b.getAttribute('data-extra')));
-  });
-  // Exportar o manuscrito completo
-  document.getElementById('expCopiar').addEventListener('click', (e) => copiarTexto(blocosParaTexto(lerSermonAtual().blocos), e.currentTarget));
-  document.getElementById('expWord').addEventListener('click', () => { const sm = lerSermonAtual(); exportarWord(sm.titulo, sm.blocos); });
-  document.getElementById('expPdf').addEventListener('click', () => { const sm = lerSermonAtual(); imprimirPdf(sm.titulo, sm.blocos); });
-  // Resultado de um material extra
-  function blocosDoResultado(){ return extraParaBlocos(extraAtual.nome, extraAtual.sermao, extrasTexto.value); }
-  document.getElementById('resCopiar').addEventListener('click', (e) => copiarTexto(extrasTexto.value, e.currentTarget));
-  document.getElementById('resWord').addEventListener('click', () => { if(extraAtual) exportarWord(extraAtual.nome + ' - ' + extraAtual.sermao, blocosDoResultado()); });
-  document.getElementById('resPdf').addEventListener('click', () => { if(extraAtual) imprimirPdf(extraAtual.nome + ' - ' + extraAtual.sermao, blocosDoResultado()); });
-  document.getElementById('resVoltar').addEventListener('click', () => mostrarVistaExtras('menu'));
-  document.getElementById('resRefazer').addEventListener('click', () => { if(extraAtual) gerarExtra(extraAtual.tipo); });
-
-
-  // =====================================================================
-  //  EDITAR O SERMÃO NA TELA E SUBSTITUIR EM TODOS OS MODOS
-  // =====================================================================
-  const SELETOR_EDITAVEL = '#sermonBody .body-text, #sermonBody .closing-q, #sermonBody .essay-open, #sermonBody .division-title, #sermonBody .prop-text, #sermonBody .anchor, #sermonBody .conferir-box li, #sermonBody .hist-context p, #mainTitle';
-  const NOMES_MODO = { exegetico: 'Exegético', leitura: 'Leitura', pulpito: 'Púlpito' };
-  let houveAlteracao = false;
-  let tituloAoEditar = '';
-
-  // Reaplica por cima do sermão as edições guardadas junto com os dados dele
-  function aplicarEdicoesSalvas(conteudo, dados){
-    if(dados && dados._editado){
-      ['exegetico', 'leitura', 'pulpito', 'toc'].forEach(k => {
-        if(dados._editado[k]) conteudo[k] = dados._editado[k];
-      });
-    }
-    return conteudo;
-  }
-  function avisar(msg){
-    const t = document.createElement('div');
-    t.className = 'toast';
-    t.textContent = msg;
-    document.body.appendChild(t);
-    setTimeout(() => { if(t.parentNode) t.parentNode.removeChild(t); }, 2600);
-  }
-  function textoDeHtml(html){
-    const d = document.createElement('div');
-    d.innerHTML = html || '';
-    return d.textContent.replace(/\s+/g, ' ').trim();
-  }
-  function escapeRegex(t){ return String(t).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-  // Troca texto só dentro dos textos (nunca nas marcas HTML). Devolve o HTML novo e quantas trocas fez.
-  function substituirNoHtml(html, achar, trocar, ignorarCaixa){
-    const raiz = document.createElement('div');
-    raiz.innerHTML = html || '';
-    const re = new RegExp(escapeRegex(achar), ignorarCaixa ? 'gi' : 'g');
-    const nos = [];
-    const w = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT);
-    while(w.nextNode()) nos.push(w.currentNode);
-    let total = 0;
-    nos.forEach(n => {
-      const antes = n.nodeValue;
-      const depois = antes.replace(re, () => { total++; return trocar; });
-      if(depois !== antes) n.nodeValue = depois;
-    });
-    return { html: raiz.innerHTML, total: total };
-  }
-
-  async function sbSalvarComResultado(campos){
-    try{
-      const { error } = await sb.from('pregacaopro_dados').upsert(Object.assign({ id: REGISTRO_ID }, campos));
-      if(error) throw error;
-      return true;
-    }catch(e){
-      console.error('Supabase (salvar edição):', (e && (e.message || e.error_description || e.hint)) || JSON.stringify(e));
-      return false;
-    }
-  }
-
-  function podeEditar(){
-    if(activeSermon !== 'custom' || !customContent){
-      window.alert('O Sermão de Exemplo não pode ser editado. Abra "Meu Sermão" ou um sermão da Biblioteca.');
-      return false;
-    }
-    if(!activeLibraryId && !customData){
-      window.alert('Para editar, gere este sermão de novo em "Inserir Sermão" ou abra-o pela Biblioteca.');
-      return false;
-    }
-    return true;
-  }
-
-  // Guarda as alterações: primeiro na nuvem; só se der certo, atualiza o que está na tela
-  // alt = { modos: {exegetico?, leitura?, pulpito?}, toc?, titulo? }
-  async function persistirEdicao(alt){
-    const modos = alt.modos || {};
-    if(activeLibraryId){
-      await loadLibrary(); // pega a Biblioteca mais recente antes de gravar
-      const entry = libraryEntries.find(e => e.id === activeLibraryId);
-      if(!entry) throw new Error('Este sermão não foi encontrado na Biblioteca (talvez tenha sido excluído).');
-      entry.content = entry.content || {};
-      Object.keys(modos).forEach(m => { entry.content[m] = modos[m]; });
-      if(alt.toc) entry.content.toc = alt.toc;
-      if(alt.titulo != null){ entry.titulo = alt.titulo; entry.content.titulo = esc(alt.titulo); }
-      if(!(await sbSalvarComResultado({ biblioteca: libraryEntries }))) throw new Error('falha ao gravar na nuvem.');
-    }else{
-      const copia = JSON.parse(JSON.stringify(customData));
-      copia._editado = copia._editado || {};
-      Object.keys(modos).forEach(m => { copia._editado[m] = modos[m]; });
-      if(alt.toc) copia._editado.toc = alt.toc;
-      if(alt.titulo != null) copia.titulo = alt.titulo;
-      if(!(await sbSalvarComResultado({ meu_sermao_data: JSON.stringify(copia) }))) throw new Error('falha ao gravar na nuvem.');
-      customData = copia;
-    }
-    Object.keys(modos).forEach(m => { customContent[m] = modos[m]; });
-    if(alt.toc) customContent.toc = alt.toc;
-    if(alt.titulo != null) customContent.titulo = esc(alt.titulo);
-  }
-
-  // ---------- Modo de edição ----------
-  function iniciarEdicao(){
-    if(editando || !podeEditar()) return;
-    const modo = document.body.getAttribute('data-mode') || 'exegetico';
-    editando = true;
-    houveAlteracao = false;
-    tituloAoEditar = document.getElementById('mainTitle').textContent.replace(/\s+/g, ' ').trim();
-    document.body.classList.add('editando');
-    document.querySelectorAll(SELETOR_EDITAVEL).forEach(el => {
-      el.setAttribute('contenteditable', 'true');
-      el.setAttribute('spellcheck', 'true');
-    });
-    document.querySelectorAll('#sermonBody .lex-chip').forEach(c => c.setAttribute('contenteditable', 'false'));
-    document.getElementById('editBarTxt').innerHTML = '<strong>Editando o modo ' + NOMES_MODO[modo] + '.</strong> Toque no texto para corrigir. A correção vale só para este modo; para trocar uma palavra em todos, use "Substituir em tudo".';
-    const sv = document.getElementById('editSave');
-    sv.disabled = false;
-    sv.textContent = 'Salvar edição';
-  }
-  function terminarEdicao(){
-    editando = false;
-    houveAlteracao = false;
-    document.body.classList.remove('editando');
-    document.querySelectorAll('[contenteditable]').forEach(el => {
-      el.removeAttribute('contenteditable');
-      el.removeAttribute('spellcheck');
-    });
-  }
-  function cancelarEdicao(){
-    if(!editando) return;
-    if(houveAlteracao && !window.confirm('Descartar as alterações feitas?')) return;
-    terminarEdicao();
-    renderSermon(document.body.getAttribute('data-mode') || 'exegetico');
-    updateTitleDisplay();
-  }
-  async function salvarEdicao(){
-    if(!editando) return;
-    const modo = document.body.getAttribute('data-mode') || 'exegetico';
-    const btn = document.getElementById('editSave');
-    btn.disabled = true;
-    btn.textContent = 'Salvando...';
-    try{
-      const clone = document.getElementById('sermonBody').cloneNode(true);
-      clone.querySelectorAll('[contenteditable]').forEach(el => {
-        el.removeAttribute('contenteditable');
-        el.removeAttribute('spellcheck');
-      });
-      const w = document.createTreeWalker(clone, NodeFilter.SHOW_TEXT);
-      while(w.nextNode()){
-        const n = w.currentNode;
-        if(n.nodeValue.indexOf('\u00a0') >= 0) n.nodeValue = n.nodeValue.replace(/\u00a0/g, ' ');
-      }
-      const alt = { modos: {} };
-      alt.modos[modo] = clone.innerHTML;
-
-      // títulos dos pontos alterados -> atualiza também o sumário
-      const toc = (customContent.toc || []).map(t => Object.assign({}, t));
-      let tocMudou = false;
-      clone.querySelectorAll('[id^="nav-div"]').forEach(card => {
-        const t = card.querySelector('.division-title');
-        const item = toc.find(x => x.id === card.id);
-        if(t && item){
-          const novo = esc(t.textContent.replace(/\s+/g, ' ').trim());
-          if(novo && novo !== item.label){ item.label = novo; tocMudou = true; }
-        }
-      });
-      if(tocMudou) alt.toc = toc;
-
-      const tituloNovo = document.getElementById('mainTitle').textContent.replace(/\s+/g, ' ').trim();
-      if(tituloNovo && tituloNovo !== tituloAoEditar) alt.titulo = tituloNovo;
-
-      await persistirEdicao(alt);
-      terminarEdicao();
-      renderSermon(modo);
-      updateTitleDisplay();
-      avisar('Edição salva.');
-    }catch(err){
-      console.error('Erro ao salvar edição:', err);
-      window.alert('Não foi possível salvar agora: ' + ((err && err.message) ? err.message : 'erro desconhecido') + '\nSuas alterações continuam na tela. Tente salvar de novo.');
-      btn.disabled = false;
-      btn.textContent = 'Salvar edição';
-    }
-  }
-
-  // Dentro dos campos editáveis: sem quebra de linha, e colar sempre como texto simples
-  document.addEventListener('keydown', (e) => {
-    if(editando && e.key === 'Enter' && e.target && e.target.closest && e.target.closest('[contenteditable="true"]')) e.preventDefault();
-  }, true);
-  document.addEventListener('beforeinput', (e) => {
-    if(!editando) return;
-    if(e.inputType === 'insertParagraph' || e.inputType === 'insertLineBreak' || e.inputType === 'insertFromDrop') e.preventDefault();
-  }, true);
-  document.addEventListener('paste', (e) => {
-    if(!editando || !e.target || !e.target.closest || !e.target.closest('[contenteditable="true"]')) return;
-    e.preventDefault();
-    const txt = ((e.clipboardData || window.clipboardData).getData('text/plain') || '').replace(/\s*\n+\s*/g, ' ');
-    document.execCommand('insertText', false, txt);
-  }, true);
-  document.addEventListener('drop', (e) => {
-    if(editando && e.target && e.target.closest && e.target.closest('[contenteditable="true"]')) e.preventDefault();
-  }, true);
-  document.addEventListener('input', () => { if(editando) houveAlteracao = true; });
-
-  document.getElementById('editBtn').addEventListener('click', iniciarEdicao);
-  document.getElementById('editCancel').addEventListener('click', cancelarEdicao);
-  document.getElementById('editSave').addEventListener('click', salvarEdicao);
-
-  // ---------- Substituir em todos os modos ----------
-  const trocarOverlay = document.getElementById('trocarOverlay');
-  const trocarMsg = document.getElementById('trocarMsg');
-  function mostrarMsgTrocar(texto, ehAviso){
-    trocarMsg.textContent = texto;
-    trocarMsg.classList.add('show');
-    trocarMsg.classList.toggle('notice', !!ehAviso);
-  }
-  async function substituirEmTudo(){
-    trocarMsg.classList.remove('show');
-    const de = document.getElementById('trocarDe').value;
-    const para = document.getElementById('trocarPara').value;
-    const ignorar = document.getElementById('trocarCaixa').checked;
-    if(!de){ mostrarMsgTrocar('Digite o texto a localizar.'); return; }
-    if(!podeEditar()) return;
-
-    const alt = { modos: {} };
-    let total = 0;
-    ['exegetico', 'leitura', 'pulpito'].forEach(m => {
-      const r = substituirNoHtml(customContent[m], de, para, ignorar);
-      if(r.total > 0){ alt.modos[m] = r.html; total += r.total; }
-    });
-    const rt = substituirNoHtml(customContent.titulo, de, para, ignorar);
-    if(rt.total > 0) alt.titulo = textoDeHtml(rt.html);
-    let tocMudou = false;
-    const toc = (customContent.toc || []).map(t => {
-      const r = substituirNoHtml(t.label, de, para, ignorar);
-      if(r.total > 0){ tocMudou = true; return Object.assign({}, t, { label: r.html }); }
-      return Object.assign({}, t);
-    });
-    if(tocMudou) alt.toc = toc;
-
-    if(total === 0 && alt.titulo == null){ mostrarMsgTrocar('Não encontrei "' + de + '" neste sermão.'); return; }
-    if(!window.confirm('Substituir "' + de + '" por "' + para + '" em ' + total + ' trecho(s) deste sermão (nos três modos)?')) return;
-
-    const btn = document.getElementById('trocarFazer');
-    btn.disabled = true;
-    try{
-      await persistirEdicao(alt);
-      renderSermon(document.body.getAttribute('data-mode') || 'exegetico');
-      updateTitleDisplay();
-      mostrarMsgTrocar(total + ' trecho(s) alterado(s) e salvo(s).', true);
-    }catch(err){
-      console.error('Erro ao substituir:', err);
-      mostrarMsgTrocar('Não foi possível salvar agora: ' + ((err && err.message) ? err.message : 'erro desconhecido'));
-    }finally{
-      btn.disabled = false;
-    }
-  }
-  document.getElementById('trocarBtn').addEventListener('click', () => {
-    if(!podeEditar()) return;
-    trocarMsg.classList.remove('show');
-    trocarOverlay.classList.add('open');
-  });
-  document.getElementById('trocarClose').addEventListener('click', () => trocarOverlay.classList.remove('open'));
-  document.getElementById('trocarFechar').addEventListener('click', () => trocarOverlay.classList.remove('open'));
-  document.getElementById('trocarFazer').addEventListener('click', substituirEmTudo);
-
-
-  // =====================================================================
-  //  BIBLIOTECA ORGANIZADA: busca, filtros, série, pregações e nota
-  // =====================================================================
-  const libBuscaEl = document.getElementById('libBusca');
-  libBuscaEl.addEventListener('input', () => { libBusca = libBuscaEl.value; renderLibraryList(); });
-  document.querySelectorAll('.lib-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      libFiltro = chip.getAttribute('data-filtro');
-      document.querySelectorAll('.lib-chip').forEach(c => c.classList.toggle('active', c === chip));
-      renderLibraryList();
-    });
-  });
-  // Ao abrir a Biblioteca, começa sem busca e mostrando todos
-  document.getElementById('libraryBtn').addEventListener('click', () => {
-    libBusca = '';
-    libFiltro = 'todos';
-    libBuscaEl.value = '';
-    document.querySelectorAll('.lib-chip').forEach(c => c.classList.toggle('active', c.getAttribute('data-filtro') === 'todos'));
-  });
-
-  const detOverlay = document.getElementById('detOverlay');
-  const detSerie = document.getElementById('detSerie');
-  const detNota = document.getElementById('detNota');
-  const detData = document.getElementById('detData');
-  const detLocal = document.getElementById('detLocal');
-  const detMsg = document.getElementById('detMsg');
-  let detId = null;
-  let detPregacoes = [];
-  let detPendente = false;   // true se a data/local foram mexidos e ainda não adicionados
-
-  function hojeIso(){
-    const d = new Date();
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  }
-  function ultimoLocalUsado(){
-    try{ return localStorage.getItem('pp-ultimo-local') || ''; }catch(e){ return ''; }
-  }
-  function renderDetPregacoes(){
-    const box = document.getElementById('detPregacoes');
-    if(!detPregacoes.length){
-      box.innerHTML = '<div class="det-vazio">Nenhuma pregação registrada ainda.</div>';
-      return;
-    }
-    box.innerHTML = detPregacoes.map((x, idx) =>
-      '<div class="det-preg-row"><span>' + esc(formatarDataIso(x.data)) + (x.local ? ' · ' + esc(x.local) : '') + '</span>' +
-      '<button data-rem="' + idx + '" title="Remover">✕</button></div>'
-    ).join('');
-    box.querySelectorAll('[data-rem]').forEach(b => {
-      b.addEventListener('click', () => {
-        detPregacoes.splice(Number(b.getAttribute('data-rem')), 1);
-        renderDetPregacoes();
-      });
-    });
-  }
-  function abrirDetalhes(id){
-    const entry = libraryEntries.find(e => e.id === id);
-    if(!entry) return;
-    detId = id;
-    document.getElementById('detTitulo').textContent = entry.titulo || 'Detalhes do sermão';
-    detSerie.value = entry.serie || '';
-    detNota.value = entry.nota || '';
-    detPregacoes = pregacoesDe(entry).map(x => ({ data: x.data, local: x.local || '' }));
-    const lista = document.getElementById('detSeriesLista');
-    lista.innerHTML = '';
-    Array.from(new Set(libraryEntries.map(e => String(e.serie || '').trim()).filter(Boolean))).sort().forEach(nome => {
-      const o = document.createElement('option');
-      o.value = nome;
-      lista.appendChild(o);
-    });
-    detData.value = hojeIso();
-    detLocal.value = ultimoLocalUsado();
-    detPendente = false;
-    detMsg.classList.remove('show');
-    renderDetPregacoes();
-    detOverlay.classList.add('open');
-  }
-  function adicionarPregacao(){
-    if(!dataIsoParaDate(detData.value)){
-      detMsg.textContent = 'Escolha a data em que você pregou.';
-      detMsg.classList.add('show');
-      return false;
-    }
-    detMsg.classList.remove('show');
-    const local = detLocal.value.trim().slice(0, 80);
-    detPregacoes.push({ data: detData.value, local: local });
-    detPregacoes.sort((a, b) => String(b.data).localeCompare(String(a.data)));
-    try{ if(local) localStorage.setItem('pp-ultimo-local', local); }catch(e){}
-    detData.value = hojeIso();
-    detPendente = false;
-    renderDetPregacoes();
-    return true;
-  }
-  async function salvarDetalhes(){
-    const btn = document.getElementById('detSalvar');
-    detMsg.classList.remove('show');
-    if(detPendente && detData.value && !adicionarPregacao()) return;
-    btn.disabled = true;
-    btn.textContent = 'Salvando...';
-    try{
-      await loadLibrary(); // pega a Biblioteca mais recente antes de gravar
-      const entry = libraryEntries.find(e => e.id === detId);
-      if(!entry) throw new Error('Este sermão não foi encontrado na Biblioteca (talvez tenha sido excluído).');
-      const serie = detSerie.value.trim().slice(0, 60);
-      const nota = detNota.value.trim().slice(0, 2000);
-      if(serie) entry.serie = serie; else delete entry.serie;
-      if(nota) entry.nota = nota; else delete entry.nota;
-      if(detPregacoes.length) entry.pregacoes = detPregacoes.map(x => ({ data: x.data, local: x.local })); else delete entry.pregacoes;
-      if(!(await sbSalvarComResultado({ biblioteca: libraryEntries }))) throw new Error('falha ao gravar na nuvem.');
-      detOverlay.classList.remove('open');
-      renderLibraryList();
-      avisar('Detalhes salvos.');
-    }catch(err){
-      console.error('Erro ao salvar detalhes:', err);
-      detMsg.textContent = 'Não foi possível salvar agora: ' + ((err && err.message) ? err.message : 'erro desconhecido');
-      detMsg.classList.add('show');
-    }finally{
-      btn.disabled = false;
-      btn.textContent = 'Salvar';
-    }
-  }
-  detData.addEventListener('input', () => { detPendente = true; });
-  detLocal.addEventListener('input', () => { detPendente = true; });
-  document.getElementById('detAdd').addEventListener('click', adicionarPregacao);
-  document.getElementById('detSalvar').addEventListener('click', salvarDetalhes);
-  document.getElementById('detCancelar').addEventListener('click', () => detOverlay.classList.remove('open'));
-  document.getElementById('detClose').addEventListener('click', () => detOverlay.classList.remove('open'));
-
-  processBtn.addEventListener('click', processSermon);
-
-  // Lembra a última duração e o último público escolhidos
-  (function(){
-    const dur = document.getElementById('durSel');
-    const pub = document.getElementById('pubSel');
-    try{
-      const d = localStorage.getItem('pp-duracao'); if(d) dur.value = d;
-      const u = localStorage.getItem('pp-publico'); if(u) pub.value = u;
-    }catch(e){}
-    dur.addEventListener('change', () => { try{ localStorage.setItem('pp-duracao', dur.value); }catch(e){} });
-    pub.addEventListener('change', () => { try{ localStorage.setItem('pp-publico', pub.value); }catch(e){} });
-  })();  if ("serviceWorker" in navigator) {
+  processBtn.addEventListener('click', processSermon);  if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js"));
   }
 </script>
